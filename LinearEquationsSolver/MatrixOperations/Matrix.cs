@@ -2,7 +2,7 @@
 
 namespace MatrixOperations
 {
-    public class Matrix<Tsource> where Tsource : struct
+    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>> where Tsource : struct
     {
         protected Tsource[][] value;
 
@@ -12,6 +12,8 @@ namespace MatrixOperations
                 throw new ArgumentNullException();
 
             value = array;
+            Rows = new RowCollection<Tsource>(ref array);
+            Columns = new ColumnCollection<Tsource>(ref array);
         }
 
         #region Properties
@@ -24,6 +26,30 @@ namespace MatrixOperations
             set { this.value[index1][index2] = value; }
         }
 
+        public RowCollection<Tsource> Rows { get; protected set; }
+
+        public ColumnCollection<Tsource> Columns {get; protected set;}
+
         #endregion
+
+        #region Static
+
+        public static Matrix<double> GenerateIdentity(uint count)
+        {
+
+        }
+
+        public static Matrix<TSource> GenerateDiagonal<TSource>(TSource[] vector)
+        {
+
+        }
+
+
+
+
+
+        #endregion
+
+        public bool Equals(Matrix<Tsource> other) => throw new NotImplementedException();
     }
 }
