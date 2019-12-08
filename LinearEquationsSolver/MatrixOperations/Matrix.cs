@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace MatrixOperations
@@ -149,6 +151,11 @@ namespace MatrixOperations
                 return ret;
             }
 
+            public static Matrix<double> operator*(double a, Matrix<double> b)
+            {
+
+            }
+
             #endregion
 
         #endregion
@@ -170,9 +177,56 @@ namespace MatrixOperations
             return true;
         }
 
+        public Matrix<Tsource> GenerateSubMatrix(uint firstRowIndex, uint lastRowIndex, uint firstColumnIndex, uint lastColumnIndex)
+        {
+            if (firstRowIndex >= this.Rows.Count)
+                throw new IndexOutOfRangeException(nameof(firstRowIndex));
+
+            if()
+        }
+
+        public Matrix<Tsource> SkipColumn(uint columnIndex)
+        {
+            if (columnIndex >= Columns.Count)
+                throw new IndexOutOfRangeException();
+
+            Tsource[,] newarray = new Tsource[Rows.Count,Columns.Count-1];
+
+            for (int row = 0; row < )
+            {
+                for (int row = 0; row < rowIndex; row++)
+                    newarray[row] = Rows[row];
+
+                for (int row = (int)rowIndex; row < Rows.Count; row++)
+                    newarray[row] = Rows[row + 1];
+            }
+            return new Matrix<Tsource>(newarray);
+        }
+
+        public Matrix<Tsource> SkipRow(uint rowIndex)
+        {
+            if (rowIndex >= Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            Tsource[][] newarray = new Tsource[Rows.Count-1][];
+            
+            for(int row = 0; row < rowIndex; row++)
+                newarray[row] = Rows[row];
+
+            for (int row = (int)rowIndex; row < Rows.Count; row++)
+                newarray[row] = Rows[row + 1];
+
+            return new Matrix<Tsource>(newarray);
+        }
+
         public Matrix<Tsource> Transpose()
         {
+            Tsource[,] newarray = new Tsource[Rows.Count,Columns.Count];
+            for (int row = 0; row < Rows.Count; row++)
+                for (int column = 0; column < Columns.Count; column++)
+                    newarray[row, column] = this[column, row];
 
+            return new Matrix<Tsource>(newarray as Tsource[][]);
         }
 
         #endregion
@@ -188,7 +242,7 @@ namespace MatrixOperations
         public static double CalculateDeterminant(this Matrix<double> matrix)
         {
             if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be square");
+                throw new InvalidOperationException("Matrix must be a square");
 
             if (matrix.Rows.Count == 1)
                 return matrix[0,0];
@@ -197,14 +251,27 @@ namespace MatrixOperations
                 return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1,0];
 
             if (matrix.Rows.Count == 3)
-                return;
+                return
+                    matrix[0,0]*matrix[1,1]*matrix[2,2]
+                  + matrix[1,0]*matrix[2,1]*matrix[0,2]
+                  + matrix[2,0]*matrix[0,1]*matrix[1,2]
+                    
+                  - matrix[2,0]*matrix[1,1]*matrix[0,2]
+                  - matrix[0,0]*matrix[2,1]*matrix[1,2]
+                  - matrix[1,0]*matrix[0,1]*matrix[2,2];
             else
+            {
+                var sum = matrix[0,0]-matrix[0,0];
 
+                for(int column = 0; column < matrix.Columns.Count; column++)
+                    sum += matrix[0, column]
+                        * Math.Pow(-1, 2 + column)
+                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
+
+                return sum;
+            }
         }
 
-        public static Matrix<double> Inversion(this Matrix<double> matrix)
-        {
-            return matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-        }
+        public static Matrix<double> Inversion(this Matrix<double> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
     }
 }
