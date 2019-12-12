@@ -50,9 +50,33 @@ namespace MatrixOperations
 
         public bool IsReadOnly => false;
 
-        /// <exception cref="NotSupportedException"/>
-        [Obsolete]
-        public int IndexOf(Tsource[] item) => throw new NotSupportedException();
+        /// <summary>
+        /// Search matrix for row equals to 'item' and return index of row in matrix or -1.
+        /// </summary>
+        /// 
+        public int IndexOf(Tsource[] item)
+        {
+            if (item == null)
+                throw new ArgumentNullException();
+
+            if (item.Length != this.array.GetUpperBound(1) + 1)
+                return -1;
+
+            int row = 0;
+        NextRow:
+            while (row <= this.array.GetUpperBound(0))
+                for (int column = 0; column <= this.array.GetUpperBound(1); column++)
+                {
+                    if (!this.array[row][column].Equals(item[column]))
+                    {
+                        row++;
+                        goto NextRow;
+                    }
+                    return row;
+                }
+
+            return -1;
+        }
 
         /// <summary>
         /// Add new row in selected index
@@ -137,10 +161,35 @@ namespace MatrixOperations
         [Obsolete]
         public void Clear() => throw new NotSupportedException();
 
-        /// <exception cref="NotSupportedException"/>
-        [Obsolete]
-        public bool Contains(Tsource[] item) => throw new NotSupportedException();
+        /// <summary>
+        /// Search matrix for row equals to 'item'
+        /// </summary>
+        /// <param name="item">Row to search</param>
+        public bool Contains(Tsource[] item)
+        {
+            if (item == null)
+                throw new ArgumentNullException();
 
+            if (item.Length != this.array.GetUpperBound(1) + 1)
+                return false;
+
+            int row = 0;
+        NextRow:
+            while (row <= this.array.GetUpperBound(0))
+                for (int column = 0; column <= this.array.GetUpperBound(1); column++)
+                {
+                    if (!this.array[row][column].Equals(item[column]))
+                    {
+                        row++;
+                        goto NextRow;
+                    }
+                    return true;
+                }
+
+            return false;
+        }
+
+        /// <summary></summary>
         /// <exception cref="NotSupportedException"/>
         [Obsolete]
         public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotSupportedException();

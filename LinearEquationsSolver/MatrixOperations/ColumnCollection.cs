@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MatrixOperations
 {
-    public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct
+    public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct, IEquatable<Tsource>
     {
 
         public ColumnCollection(ref Tsource[][] array)
@@ -51,9 +51,32 @@ namespace MatrixOperations
             }
         }
 
-        /// <exception cref="NotSupportedException" />
-        [Obsolete]
-        public int IndexOf(Tsource[] item) => throw new NotSupportedException();
+        /// <summary>Search matrix for column equals to 'item' and return index of column in matrix or -1.</summary>
+        /// <param name="item">Column to search</param>
+        /// <exception cref="ArgumentNullException"/>
+        public int IndexOf(Tsource[] item)
+        {
+            if (item == null)
+                throw new ArgumentNullException();
+
+            if (item.Length != this.array.GetUpperBound(0)+1)
+                return -1;
+
+            int column = 0;
+        NextColumn:
+            while (column <= this.array.GetUpperBound(1))
+            {
+                for (int row = 0; row < Count; row++)
+                    if (!this.array[row][column].Equals(item[row]))
+                    {
+                        column++;
+                        goto NextColumn;
+                    }
+                return column;
+            }
+
+            return -1;
+        }
 
         /// <summary>
         /// Insert new column in selected index
@@ -134,16 +157,44 @@ namespace MatrixOperations
             this.array = newarray as Tsource[][];
         }
 
+        /// <summary></summary>
         /// <exception cref="NotSupportedException" />
         [Obsolete]
         public void Clear() => throw new NotSupportedException();
 
-        /// <exception cref="NotSupportedException" />
-        [Obsolete]
-        public bool Contains(Tsource[] item) => throw new NotSupportedException();
+        /// <summary>
+        /// Search matrix for column equals to 'item'
+        /// </summary>
+        /// <param name="item">Column to search</param>
+        /// <returns>True if matrix contain column</returns>
+        /// <exception cref="ArgumentNullException" />
+        public bool Contains(Tsource[] item)
+        {
+            if (item == null)
+                throw new ArgumentNullException();
+
+            if (item.Length != Count)
+                return false;
+            
+            int column = 0;
+            NextColumn:
+            while (column <= this.array.GetUpperBound(1))
+            {
+                for (int row = 0; row < Count; row++)
+                    if (!this.array[row][column].Equals(item[row]))
+                    {
+                        column++;
+                        goto NextColumn;
+                    }
+                return true;
+            }
+            
+            return false;
+        }
 
         public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotImplementedException();
 
+        /// <summary></summary>
         /// <exception cref="NotSupportedException" />
         [Obsolete]
         public bool Remove(Tsource[] item) => throw new NotSupportedException();
