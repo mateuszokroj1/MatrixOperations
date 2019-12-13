@@ -39,60 +39,74 @@ namespace MatrixOperations
 
         #region Static
 
-            #region Generators
+        #region Generators
 
-            public static Matrix<double> GenerateIdentity(uint count)
+        public static Matrix<double> GenerateIdentity(uint count)
+        {
+            if (count == 0)
+                return new Matrix<double>(new double[0][]);
+
+            double[][] array = new double[count][];
+
+            for (int i = 0; i < count; i++)
             {
-
+                array[i] = new double[count];
+                array[i][i] = 1;
             }
 
-            public static Matrix<TSource> GenerateDiagonal<TSource>(TSource[] vector)
-            {
+            return new Matrix<double>(array);
+        }
 
-            }
+        public static Matrix<TSource> GenerateDiagonal<TSource>(TSource[] vector)
+        {
+            if (vector == null)
+                throw new ArgumentNullException();
 
-            #region Transformation matrix
-            public static Matrix<double> GenerateTranslate2D(double moveX, double moveY)
-                {
+            if(vector.Length == 0)
+        }
 
-                }
+        #region Transformation matrix
+        public static Matrix<double> GenerateTranslate2D(double moveX, double moveY)
+        {
 
-            public static Matrix<float> GenerateTranslate2D(float moveX, float moveY)
-            {
+        }
 
-            }
+        public static Matrix<float> GenerateTranslate2D(float moveX, float moveY)
+        {
 
-            public static Matrix<long> GenerateTranslate2D(long moveX, long moveY)
-            {
+        }
 
-            }
+        public static Matrix<long> GenerateTranslate2D(long moveX, long moveY)
+        {
 
-            public static Matrix<int> GenerateTranslate2D(int moveX, int moveY)
-            {
+        }
 
-            }
+        public static Matrix<int> GenerateTranslate2D(int moveX, int moveY)
+        {
 
-            public static Matrix<short> GenerateTranslate2D(short moveX, short moveY)
-            {
+        }
 
-            }
+        public static Matrix<short> GenerateTranslate2D(short moveX, short moveY)
+        {
 
-            public static Matrix<Complex> GenerateTranslate2D(Complex moveX, Complex moveY)
-            {
+        }
 
-            }
+        public static Matrix<Complex> GenerateTranslate2D(Complex moveX, Complex moveY)
+        {
 
-            public static Matrix<double> GenerateTranslate3D(double moveX, double moveY, double moveZ)
-            {
+        }
 
-            }
+        public static Matrix<double> GenerateTranslate3D(double moveX, double moveY, double moveZ)
+        {
 
-            public static Matrix<double> GenerateRotate2D(double angle, AngleMode angleMode, double centerX = 0, double centerY = 0)
-            {
+        }
 
-            }
+        public static Matrix<double> GenerateRotate2D(double angle, AngleMode angleMode, double centerX = 0, double centerY = 0)
+        {
 
-            #endregion
+        }
+
+        #endregion
 
         #endregion
 
@@ -120,7 +134,7 @@ namespace MatrixOperations
 
         #endregion
 
-            #region Operators overload
+        #region Operators overload
 
             public static Matrix<double> operator+(Matrix<double> a, Matrix<double> b)
             {
