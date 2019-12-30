@@ -7,7 +7,7 @@ namespace MatrixOperations
 {
     public class Matrix<Tsource> : IEquatable<Matrix<Tsource>> where Tsource : struct, IEquatable<Tsource>
     {
-        protected Tsource[][] value;
+        internal Tsource[][] value;
 
         public Matrix(Tsource[][] array)
         {
@@ -132,55 +132,140 @@ namespace MatrixOperations
 
         }
 
+        public static Matrix<short> Multiply(params Matrix<short>[] matrices)
+        {
+
+        }
+
+        public static Matrix<BigInteger> Multiply(params Matrix<BigInteger>[] matrices)
+        {
+
+        }
+
+        public static Matrix<Complex> Multiply(params Matrix<Complex>[] matrices)
+        {
+
+        }
+
+        public static Matrix<double> Multiply(double a, params Matrix<double>[] matrices)
+        {
+
+        }
+
+        public static Matrix<float> Multiply(float a, params Matrix<float>[] matrices)
+        {
+
+        }
+
+        public static Matrix<long> Multiply(long a, params Matrix<long>[] matrices)
+        {
+
+        }
+
+        public static Matrix<int> Multiply(int a, params Matrix<int>[] matrices)
+        {
+
+        }
+
+        public static Matrix<short> Multiply(short a, params Matrix<short>[] matrices)
+        {
+
+        }
+
+        public static Matrix<BigInteger> Multiply(BigInteger a, params Matrix<BigInteger>[] matrices)
+        {
+
+        }
+
+        public static Matrix<Complex> Multiply(Complex a, params Matrix<Complex>[] matrices)
+        {
+
+        }
+
+        public static Matrix<double> Sum(params Matrix<double>[] matrices)
+        {
+
+        }
+
+        public static Matrix<float> Sum(params Matrix<float>[] matrices)
+        {
+
+        }
+
+        public static Matrix<long> Sum(params Matrix<long>[] matrices)
+        {
+
+        }
+
+        public static Matrix<int> Sum(params Matrix<int>[] matrices)
+        {
+
+        }
+
+        public static Matrix<short> Sum(params Matrix<short>[] matrices)
+        {
+
+        }
+
+        public static Matrix<BigInteger> Sum(params Matrix<BigInteger>[] matrices)
+        {
+
+        }
+
+        public static Matrix<Complex> Sum(params Matrix<Complex>[] matrices)
+        {
+
+        }
+
         #endregion
 
         #region Operators overload
 
-            public static Matrix<double> operator+(Matrix<double> a, Matrix<double> b)
-            {
-                if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                    throw new InvalidOperationException("Matrices must have the same size");
-            }
+        public static Matrix<double> operator+(Matrix<double> a, Matrix<double> b)
+        {
+            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
+                throw new InvalidOperationException("Matrices must have the same size");
+        }
 
-            public static Matrix<float> operator +(Matrix<float> a, Matrix<float> b)
-            {
-                if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                    throw new InvalidOperationException("Matrices must have the same size");
-            }
+        public static Matrix<float> operator +(Matrix<float> a, Matrix<float> b)
+        {
+            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
+                throw new InvalidOperationException("Matrices must have the same size");
+        }
 
-            public static Matrix<double> operator-(Matrix<double> a, Matrix<double> b)
-            {
-                if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                    throw new InvalidOperationException("Matrices must have the same size");
-            }
+        public static Matrix<double> operator-(Matrix<double> a, Matrix<double> b)
+        {
+            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
+                throw new InvalidOperationException("Matrices must have the same size");
+        }
 
-            public static Matrix<float> operator -(Matrix<float> a, Matrix<float> b)
-            {
-                if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                    throw new InvalidOperationException("Matrices must have the same size");
-            }
+        public static Matrix<float> operator -(Matrix<float> a, Matrix<float> b)
+        {
+            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
+                throw new InvalidOperationException("Matrices must have the same size");
+        }
 
-            public static Matrix<double> operator*(Matrix<double> a, Matrix<double> b)
-            {
-                if (a.Columns.Count != b.Rows.Count)
-                    throw new InvalidOperationException("Matrix A must have the same number of columns as matrix B have rows.");
-            }
+        public static Matrix<double> operator*(Matrix<double> a, Matrix<double> b)
+        {
+            if (a.Columns.Count != b.Rows.Count)
+                throw new InvalidOperationException("Matrix A must have the same number of columns as matrix B have rows.");
+        }
 
-            public static Matrix<double> operator*(Matrix<double> a, double b)
-            {
-                Matrix<double> ret = a;
-                for (int row = 0; row < a.Rows.Count; row++)
-                    for (int column = 0; column < a.Columns.Count; column++)
-                        ret[row, column] *= b;
-                return ret;
-            }
+        public static Matrix<double> operator*(Matrix<double> a, double b)
+        {
+            Matrix<double> ret = a;
+            for (int row = 0; row < a.Rows.Count; row++)
+                for (int column = 0; column < a.Columns.Count; column++)
+                    ret[row, column] *= b;
+            return ret;
+        }
 
-            public static Matrix<double> operator*(double a, Matrix<double> b)
-            {
+        public static Matrix<double> operator*(double a, Matrix<double> b)
+        {
 
-            }
+        }
 
-            #endregion
+        #endregion
 
         #endregion
 
@@ -226,13 +311,16 @@ namespace MatrixOperations
             if (firstRowIndex > lastColumnIndex || firstColumnIndex > lastColumnIndex)
                 return new Matrix<Tsource>(new Tsource[0][]);
 
-            Tsource[,] array = new Tsource[lastRowIndex-firstRowIndex+1,lastColumnIndex-firstColumnIndex+1];
+            Tsource[][] array = new Tsource[lastRowIndex-firstRowIndex+1][];
 
             for (int sourceRowIndex = (int)firstRowIndex, destRowIndex = 0; sourceRowIndex <= lastRowIndex && destRowIndex < Rows.Count; sourceRowIndex++, destRowIndex++)
+            {
+                array[destRowIndex] = new Tsource[lastColumnIndex - firstColumnIndex + 1];
                 for (int sourceColumnIndex = (int)firstColumnIndex, destColumnIndex = 0; sourceColumnIndex <= lastColumnIndex && destColumnIndex < Columns.Count; sourceColumnIndex++, destColumnIndex++)
-                    array[destRowIndex, destColumnIndex] = this[sourceRowIndex, sourceColumnIndex];
+                    array[destRowIndex][destColumnIndex] = this[sourceRowIndex, sourceColumnIndex];
+            }
 
-            return new Matrix<Tsource>(array as Tsource[][]);
+            return new Matrix<Tsource>(array);
         }
 
         /// <summary>
@@ -254,17 +342,18 @@ namespace MatrixOperations
             if (columnIndex >= Columns.Count)
                 throw new IndexOutOfRangeException();
 
-            Tsource[,] newarray = new Tsource[Rows.Count,Columns.Count-1];
+            Tsource[][] newarray = new Tsource[Rows.Count][];
 
             for (int row = 0; row < Rows.Count; row++)
             {
+                newarray[row] = new Tsource[Columns.Count - 1];
                 for (int column = 0; column < columnIndex; column++)
-                    newarray[row, column] = this[row,column];
+                    newarray[row][column] = this[row,column];
 
                 for (int column = (int)columnIndex; column < Columns.Count; column++)
-                    newarray[row, column] = this[row,column+1];
+                    newarray[row][column] = this[row,column+1];
             }
-            return new Matrix<Tsource>(newarray as Tsource[][]);
+            return new Matrix<Tsource>(newarray);
         }
 
         public Matrix<Tsource> SkipRow(uint rowIndex)
@@ -289,12 +378,15 @@ namespace MatrixOperations
         /// <returns></returns>
         public Matrix<Tsource> Transpose()
         {
-            Tsource[,] newarray = new Tsource[Rows.Count,Columns.Count];
+            Tsource[][] newarray = new Tsource[Rows.Count][];
             for (int row = 0; row < Rows.Count; row++)
+            {
+                newarray[row] = new Tsource[Columns.Count];
                 for (int column = 0; column < Columns.Count; column++)
-                    newarray[row, column] = this[column, row];
+                    newarray[row][column] = this[column, row];
+            }
 
-            return new Matrix<Tsource>(newarray as Tsource[][]);
+            return new Matrix<Tsource>(newarray);
         }
 
         #endregion
