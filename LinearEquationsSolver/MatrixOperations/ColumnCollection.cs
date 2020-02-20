@@ -5,10 +5,13 @@ using System.Text;
 
 namespace MatrixOperations
 {
-    public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct, IEquatable<Tsource>
+    public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct
     {
-        public ColumnCollection(ref Matrix<Tsource> matrix)
+        public ColumnCollection(Matrix<Tsource> matrix)
         {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
             this.matrix = matrix;
         }
 
@@ -58,15 +61,15 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != this.matrix.GetUpperBound(0)+1)
+            if (item.Length != this.matrix.Rows.Count)
                 return -1;
 
             int column = 0;
         NextColumn:
-            while (column <= this.matrix.GetUpperBound(1))
+            while (column <= this.matrix.Columns.Count-1)
             {
                 for (int row = 0; row < Count; row++)
-                    if (!this.matrix[row][column].Equals(item[row]))
+                    if (!this.matrix[row,column].Equals(item[row]))
                     {
                         column++;
                         goto NextColumn;
@@ -89,23 +92,23 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (index >= this.matrix.GetUpperBound(0))
+            if (index == this.matrix.Rows.Count)
                 throw new IndexOutOfRangeException();
 
-            Tsource[][] newarray = new Tsource[this.matrix.GetUpperBound(0) + 1][];
+            Tsource[][] newarray = new Tsource[this.matrix.Rows.Count][];
 
-            for(int i = 0; i <= this.matrix.GetUpperBound(0); i++)
+            for(int i = 0; i < this.matrix.Rows.Count; i++)
             {
-                newarray[i] = new Tsource[this.matrix.GetUpperBound(1) + 2];
+                newarray[i] = new Tsource[this.matrix.Columns.Count + 1];
                 for(int j = 0; j < index; j++)
-                    newarray[i][j] = this.matrix[i][j];
+                    newarray[i][j] = this.matrix[i,j];
 
                 newarray[i][index] = item[i];
 
-                for (int j = index; j <= this.matrix.GetUpperBound(1); j++)
-                    newarray[i][j + 1] = this.matrix[i][j];
+                for (int j = index; j < this.matrix.Columns.Count; j++)
+                    newarray[i][j + 1] = this.matrix[i,j];
             }
-            this.matrix = newarray;
+            this.matrix.value = newarray;
         }
 
         /// <summary>
@@ -115,20 +118,10 @@ namespace MatrixOperations
         /// <exception cref="IndexOutOfRangeException"/>
         public void RemoveAt(int index)
         {
-            if (index >= this.matrix.GetUpperBound(1))
+            if (index >= this.matrix.Columns.Count-1)
                 throw new IndexOutOfRangeException();
 
-            Tsource[,] newarray = new Tsource[this.matrix.GetUpperBound(0)+1,this.matrix.GetUpperBound(1)];
-
-            for(int i = 0; i <= this.matrix.GetUpperBound(0); i++)
-            {
-                for (int j = 0; j < index; j++)
-                    newarray[i, j] = this.matrix[i][j];
-
-                for (int j = index; j <= this.matrix.GetUpperBound(1); j++)
-                    newarray[i, j] = this.matrix[i][j+1];
-            }
-            this.matrix = newarray as Tsource[][];
+            this.matrix.SkipColumn((uint)index);
         }
         
         /// <summary>
@@ -142,14 +135,14 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != this.matrix.GetUpperBound(0) + 1)
+            if (item.Length != this.matrix.Rows.Count)
                 throw new InvalidOperationException("New column must have the same length as other.");
 
-            Tsource[,] newarray = new Tsource[this.matrix.GetUpperBound(0)+1,this.matrix.GetUpperBound(1)+2];
+            Tsource[,] newarray = new Tsource[this.matrix.Rows.Count,this.matrix.Columns.Count+1];
 
-            for(int i = 0; i <= this.matrix.GetUpperBound(0); i++)
+            for(int i = 0; i < this.matrix.Rows.Count; i++)
             {
-                for (int j = 0; j <= this.matrix.GetUpperBound(1); j++)
+                for (int j = 0; j < this.matrix.Columns.Count; j++)
                     newarray[i, j] = this.matrix[i][j];
 
                 newarray[i, this.matrix.GetUpperBound(1) + 1] = item[i];

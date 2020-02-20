@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace MatrixOperations
 {
-    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>> where Tsource : struct, IEquatable<Tsource>
+    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>> where Tsource : struct
     {
         internal Tsource[][] value;
 
@@ -15,8 +15,8 @@ namespace MatrixOperations
                 throw new ArgumentNullException();
 
             value = array;
-            Rows = new RowCollection<Tsource>(ref array);
-            Columns = new ColumnCollection<Tsource>(ref array);
+            Rows = new RowCollection<Tsource>(this);
+            Columns = new ColumnCollection<Tsource>(this);
         }
 
         #region Properties
@@ -62,7 +62,7 @@ namespace MatrixOperations
             if (vector == null)
                 throw new ArgumentNullException();
 
-            if(vector.Length == 0)
+            if(vector.Length == 0) { }
         }
 
         #region Transformation matrix
@@ -110,7 +110,165 @@ namespace MatrixOperations
 
         #endregion
 
-        #region Operations
+        #region Methods
+
+        public static Matrix<decimal> FromArray(decimal[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new decimal[array.GetUpperBound(0)+1][];
+
+            for(int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new decimal[array.GetUpperBound(1)+1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i,j];
+            }
+
+            return new Matrix<decimal>(arr);
+        }
+
+        public static Matrix<double> FromArray(double[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new double[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new double[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<double>(arr);
+        }
+
+        public static Matrix<float> FromArray(float[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new float[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new float[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<float>(arr);
+        }
+
+        public static Matrix<long> FromArray(long[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new long[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new long[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<long>(arr);
+        }
+
+        public static Matrix<int> FromArray(int[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new int[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new int[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<int>(arr);
+        }
+
+        public static Matrix<short> FromArray(short[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new short[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new short[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<short>(arr);
+        }
+
+        public static Matrix<byte> FromArray(byte[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new byte[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new byte[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<byte>(arr);
+        }
+
+        public static Matrix<BigInteger> FromArray(BigInteger[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new BigInteger[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new BigInteger[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<BigInteger>(arr);
+        }
+
+        public static Matrix<Complex> FromArray(Complex[,] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+
+            var arr = new Complex[array.GetUpperBound(0) + 1][];
+
+            for (int i = 0; i <= array.GetUpperBound(0); i++)
+            {
+                arr[i] = new Complex[array.GetUpperBound(1) + 1];
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                    arr[i][j] = array[i, j];
+            }
+
+            return new Matrix<Complex>(arr);
+        }
+
+        public static Matrix<decimal> Multiply(params Matrix<decimal>[] matrices)
+        {
+
+        }
 
         public static Matrix<double> Multiply(params Matrix<double>[] matrices)
         {
@@ -137,12 +295,22 @@ namespace MatrixOperations
 
         }
 
+        public static Matrix<byte> Multiply(params Matrix<byte>[] matrices)
+        {
+
+        }
+
         public static Matrix<BigInteger> Multiply(params Matrix<BigInteger>[] matrices)
         {
 
         }
 
         public static Matrix<Complex> Multiply(params Matrix<Complex>[] matrices)
+        {
+
+        }
+
+        public static Matrix<decimal> Multiply(decimal a, params Matrix<decimal>[] matrices)
         {
 
         }
@@ -172,12 +340,112 @@ namespace MatrixOperations
 
         }
 
+        public static Matrix<byte> Multiply(byte a, params Matrix<byte>[] matrices)
+        {
+
+        }
+
         public static Matrix<BigInteger> Multiply(BigInteger a, params Matrix<BigInteger>[] matrices)
         {
 
         }
 
         public static Matrix<Complex> Multiply(Complex a, params Matrix<Complex>[] matrices)
+        {
+
+        }
+
+        public static IEnumerable<decimal> Multiply(IEnumerable<decimal> vector, Matrix<decimal> matrix)
+        {
+
+        }
+
+        public static IEnumerable<double> Multiply(IEnumerable<double> vector, Matrix<double> matrix)
+        {
+
+        }
+
+        public static IEnumerable<float> Multiply(IEnumerable<float> vector, Matrix<float> matrix)
+        {
+
+        }
+
+        public static IEnumerable<long> Multiply(IEnumerable<long> vector, Matrix<long> matrix)
+        {
+
+        }
+
+        public static IEnumerable<int> Multiply(IEnumerable<int> vector, Matrix<int> matrix)
+        {
+
+        }
+
+        public static IEnumerable<short> Multiply(IEnumerable<short> vector, Matrix<short> matrix)
+        {
+
+        }
+
+        public static IEnumerable<byte> Multiply(IEnumerable<byte> vector, Matrix<byte> matrix)
+        {
+
+        }
+
+        public static IEnumerable<BigInteger> Multiply(IEnumerable<BigInteger> vector, Matrix<BigInteger> matrix)
+        {
+
+        }
+
+        public static IEnumerable<Complex> Multiply(IEnumerable<Complex> vector, Matrix<Complex> matrix)
+        {
+
+        }
+
+        public static IEnumerable<decimal> Multiply(Matrix<decimal> matrix, IEnumerable<decimal> vector)
+        {
+
+        }
+
+        public static IEnumerable<double> Multiply(Matrix<double> matrix, IEnumerable<double> vector)
+        {
+
+        }
+
+        public static IEnumerable<float> Multiply(Matrix<float> matrix, IEnumerable<float> vector)
+        {
+
+        }
+
+        public static IEnumerable<long> Multiply(Matrix<long> matrix, IEnumerable<long> vector)
+        {
+
+        }
+
+        public static IEnumerable<int> Multiply(Matrix<int> matrix, IEnumerable<int> vector)
+        {
+
+        }
+
+        public static IEnumerable<short> Multiply(Matrix<short> matrix, IEnumerable<short> vector)
+        {
+
+        }
+
+        public static IEnumerable<byte> Multiply(Matrix<byte> matrix, IEnumerable<byte> vector)
+        {
+
+        }
+
+        public static IEnumerable<BigInteger> Multiply(Matrix<BigInteger> matrix, IEnumerable<BigInteger> vector)
+        {
+
+        }
+
+        public static IEnumerable<Complex> Multiply(Matrix<Complex> matrix, IEnumerable<Complex> vector)
+        {
+
+        }
+
+        public static Matrix<decimal> Sum(params Matrix<decimal>[] matrices)
         {
 
         }

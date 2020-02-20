@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MatrixOperations
 {
     public class RowCollection<Tsource> : IList<Tsource[]> where Tsource : struct
     {
-        public RowCollection(ref Tsource[][] value)
+        public RowCollection(Matrix<Tsource> matrix)
         {
-            this.array = value;
+            if (matrix == null)
+                throw new ArgumentNullException();
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace MatrixOperations
             }
         }
 
-        protected Tsource[][] array;
+        protected Matrix<Tsource> matrix;
 
         public int Count => this.array.GetUpperBound(0)+1;
 
