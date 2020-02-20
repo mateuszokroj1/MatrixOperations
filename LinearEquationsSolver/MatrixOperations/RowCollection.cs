@@ -21,32 +21,25 @@ namespace MatrixOperations
         /// <exception cref="InvalidOperationException"/>
         public Tsource[] this[int index]
         {
-            get
-            {
-                Tsource[] ret = new Tsource[this.array.GetUpperBound(1)+1];
-                for (int i = 0; i < this.array.GetUpperBound(1); i++)
-                    ret[i] = this.array[index][i];
-                return ret;
-            }
+            get => this.matrix.value[index];
             set
             {
-                if (index >= this.array.GetUpperBound(0) + 1)
+                if (index >= Count)
                     throw new IndexOutOfRangeException();
 
                 if (value == null)
                     throw new ArgumentNullException();
 
-                if (value.Length != this.array.GetUpperBound(1) + 1)
+                if (value.Length != this.matrix.Columns.Count)
                     throw new InvalidOperationException("New row must have the same length as other.");
 
-                for (int i = 0; i < value.Length; i++)
-                    this.array[index][i] = value[i];
+                this.matrix.value[index] = value;
             }
         }
 
         protected Matrix<Tsource> matrix;
 
-        public int Count => this.array.GetUpperBound(0)+1;
+        public int Count => this.matrix.value.GetUpperBound(0)+1;
 
         public bool IsReadOnly => false;
 
@@ -59,21 +52,23 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != this.array.GetUpperBound(1) + 1)
+            if (item.Length != this.matrix.Columns.Count)
                 return -1;
 
             int row = 0;
         NextRow:
-            while (row <= this.array.GetUpperBound(0))
-                for (int column = 0; column <= this.array.GetUpperBound(1); column++)
+            while (row < Count)
+            {
+                for (int column = 0; column < this.matrix.Columns.Count; column++)
                 {
-                    if (!this.array[row][column].Equals(item[column]))
+                    if (!this.matrix[row, column].Equals(item[column]))
                     {
                         row++;
                         goto NextRow;
                     }
-                    return row;
                 }
+                return row;
+            }
 
             return -1;
         }
@@ -91,30 +86,30 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != this.array.GetUpperBound(1) + 1)
+            if (item.Length != this.matrix.Columns.Count)
                 throw new ArgumentException("New row must have the same length as other.");
 
-            if (index >= this.array.GetUpperBound(0))
+            if (index >= Count)
                 throw new IndexOutOfRangeException(nameof(index));
 
-            Tsource[][] newarray = new Tsource[this.array.GetUpperBound(0)+2][];
+            Tsource[][] newarray = new Tsource[Count+1][];
 
             int i = 0;
             while(i < index)
             {
-                newarray[i] = this.array[i];
+                newarray[i] = this[i];
                 i++;
             }
 
             newarray[i] = item;
 
-            while (i <= this.array.GetUpperBound(0))
+            while (i < Count+1)
             {
-                newarray[i] = this.array[i - 1];
+                newarray[i] = this[i - 1];
                 i++;
             }
 
-            this.array = newarray;
+            this.matrix.value = newarray;
         }
 
         /// <summary>
@@ -124,18 +119,25 @@ namespace MatrixOperations
         /// <exception cref="IndexOutOfRangeException"/>
         public void RemoveAt(int index)
         {
-            if (index >= this.array.GetUpperBound(0))
+            if (index >= Count)
                 throw new IndexOutOfRangeException();
 
-            Tsource[][] newarray = new Tsource[this.array.GetUpperBound(0)+1][];
+            Tsource[][] newarray = new Tsource[Count-1][];
 
-            for (int i = 0; i < index; i++)
-                newarray[i] = this.array[i];
+            int i = 0;
+            while (i < index)
+            {
+                newarray[i] = this[i];
+                i++;
+            }
 
-            for (int i = index; i <= this.array.GetUpperBound(0); i++)
-                newarray[i] = this.array[i+1];
+            while(i < Count-1)
+            {
+                newarray[i] = this[i+1];
+                i++;
+            }
 
-            this.array = newarray;
+            this.matrix.value = newarray;
         }
 
         /// <summary>
@@ -147,14 +149,14 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != this.array.GetUpperBound(1)+1)
+            if (item.Length != this.matrix.Columns.Count)
                 throw new ArgumentException("New row must have the same length as other.");
 
-            Tsource[][] newarray = new Tsource[this.array.GetUpperBound(0)+2][];
-            for (int i = 0; i < this.array.GetUpperBound(0) + 1; i++)
-                newarray[i] = this.array[i];
-            newarray[this.array.Length] = item;
-            this.array = newarray;
+            Tsource[][] newarray = new Tsource[Count+1][];
+            for (int i = 0; i < Count; i++)
+                newarray[i] = this[i];
+            newarray[Count] = item;
+            this.matrix.value = newarray;
         }
 
         /// <exception cref="NotSupportedException"/>
@@ -170,23 +172,7 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != this.array.GetUpperBound(1) + 1)
-                return false;
-
-            int row = 0;
-        NextRow:
-            while (row <= this.array.GetUpperBound(0))
-                for (int column = 0; column <= this.array.GetUpperBound(1); column++)
-                {
-                    if (!this.array[row][column].Equals(item[column]))
-                    {
-                        row++;
-                        goto NextRow;
-                    }
-                    return true;
-                }
-
-            return false;
+            return IndexOf(item) > -1;
         }
 
         /// <summary></summary>
@@ -198,8 +184,8 @@ namespace MatrixOperations
         [Obsolete]
         public bool Remove(Tsource[] item) => throw new NotSupportedException();
 
-        public IEnumerator<Tsource[]> GetEnumerator() => new RowEnumerator<Tsource>(this.array);
+        public IEnumerator<Tsource[]> GetEnumerator() => new RowEnumerator<Tsource>(this.matrix);
         
-        IEnumerator IEnumerable.GetEnumerator() => new RowEnumerator<Tsource>(this.array);
+        IEnumerator IEnumerable.GetEnumerator() => new RowEnumerator<Tsource>(this.matrix);
     }
 }

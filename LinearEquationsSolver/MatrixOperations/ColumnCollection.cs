@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MatrixOperations
 {
@@ -31,8 +30,8 @@ namespace MatrixOperations
         {
             get
             {
-                Tsource[] ret = new Tsource[this.matrix.value.GetUpperBound(0) + 1];
-                for (int i = 0; i <= this.matrix.value.GetUpperBound(0); i++)
+                Tsource[] ret = new Tsource[Count];
+                for (int i = 0; i < Count; i++)
                     ret[i] = this.matrix[i,index];
                 return ret;
             }
@@ -42,10 +41,10 @@ namespace MatrixOperations
                 if (value == null)
                     throw new ArgumentNullException();
 
-                if (value.Length != this.matrix.value.GetUpperBound(0) + 1)
-                    throw new InvalidOperationException("New array must have the same length as exists.");
+                if (value.Length != this.matrix.Rows.Count)
+                    throw new InvalidOperationException("New column must have the same length as exists.");
 
-                if (index >= this.matrix.value.GetUpperBound(1))
+                if (index >= Count)
                     throw new IndexOutOfRangeException();
 
                 for (int i = 0; i < value.Length; i++)
@@ -66,7 +65,7 @@ namespace MatrixOperations
 
             int column = 0;
         NextColumn:
-            while (column <= this.matrix.Columns.Count-1)
+            while (column < this.matrix.Columns.Count)
             {
                 for (int row = 0; row < Count; row++)
                     if (!this.matrix[row,column].Equals(item[row]))
@@ -118,7 +117,7 @@ namespace MatrixOperations
         /// <exception cref="IndexOutOfRangeException"/>
         public void RemoveAt(int index)
         {
-            if (index >= this.matrix.Columns.Count-1)
+            if (index >= this.matrix.Columns.Count)
                 throw new IndexOutOfRangeException();
 
             this.matrix.SkipColumn((uint)index);
@@ -129,7 +128,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="item">New column</param>
         /// <exception cref="ArgumentNullException"/>
-        /// <exception cref="InvalidOperationException" />
+        /// <exception cref="InvalidOperationException"/>
         public void Add(Tsource[] item)
         {
             if (item == null)
@@ -138,19 +137,19 @@ namespace MatrixOperations
             if (item.Length != this.matrix.Rows.Count)
                 throw new InvalidOperationException("New column must have the same length as other.");
 
-            Tsource[,] newarray = new Tsource[this.matrix.Rows.Count,this.matrix.Columns.Count+1];
+            Tsource[][] newarray = new Tsource[this.matrix.Rows.Count][];
 
             for(int i = 0; i < this.matrix.Rows.Count; i++)
             {
-                for (int j = 0; j < this.matrix.Columns.Count; j++)
-                    newarray[i, j] = this.matrix[i][j];
+                newarray[i] = new Tsource[Count+1];
+                for (int j = 0; j < Count; j++)
+                    newarray[i][j] = this.matrix[i,j];
 
-                newarray[i, this.matrix.GetUpperBound(1) + 1] = item[i];
+                newarray[i][Count] = item[i];
             }
-            this.matrix = newarray as Tsource[][];
+            this.matrix.value = newarray;
         }
 
-        /// <summary></summary>
         /// <exception cref="NotSupportedException" />
         [Obsolete]
         public void Clear() => throw new NotSupportedException();
@@ -166,28 +165,13 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != Count)
-                return false;
-            
-            int column = 0;
-            NextColumn:
-            while (column <= this.matrix.GetUpperBound(1))
-            {
-                for (int row = 0; row < Count; row++)
-                    if (!this.matrix[row][column].Equals(item[row]))
-                    {
-                        column++;
-                        goto NextColumn;
-                    }
-                return true;
-            }
-            
-            return false;
+            return IndexOf(item) > -1;
         }
 
+        /// <exception cref="NotSupportedException"/>
+        [Obsolete]
         public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotImplementedException();
 
-        /// <summary></summary>
         /// <exception cref="NotSupportedException" />
         [Obsolete]
         public bool Remove(Tsource[] item) => throw new NotSupportedException();
