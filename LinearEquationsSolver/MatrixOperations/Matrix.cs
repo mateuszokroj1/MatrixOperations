@@ -276,7 +276,46 @@ namespace MatrixOperations
 
         }
 
-        public static Matrix<decimal> Multiply(Matrix<decimal> matrix, decimal b)
+        public static Matrix<decimal> Multiply(decimal a, Matrix<decimal> matrix)
+        {
+
+        }
+        public static Matrix<double> Multiply(double a, Matrix<double> matrix)
+        {
+
+        }
+
+        public static Matrix<float> Multiply(float a, Matrix<float> matrix)
+        {
+
+        }
+
+        public static Matrix<long> Multiply(long a, Matrix<long> matrix)
+        {
+
+        }
+
+        public static Matrix<int> Multiply(int a, Matrix<int> matrix)
+        {
+
+        }
+
+        public static Matrix<short> Multiply(short a, Matrix<short> matrix)
+        {
+
+        }
+
+        public static Matrix<byte> Multiply(byte a, Matrix<byte> matrix)
+        {
+
+        }
+
+        public static Matrix<BigInteger> Multiply(BigInteger a, Matrix<BigInteger> matrix)
+        {
+
+        }
+
+        public static Matrix<Complex> Multiply(Complex a, Matrix<Complex> matrix)
         {
 
         }
@@ -508,6 +547,8 @@ namespace MatrixOperations
 
         #region Operators overload
 
+        public static Matrix<decimal> operator +(Matrix<decimal> a, Matrix<decimal> b)
+
         public static Matrix<double> operator+(Matrix<double> a, Matrix<double> b)
         {
             if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
@@ -518,6 +559,36 @@ namespace MatrixOperations
         {
             if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
                 throw new InvalidOperationException("Matrices must have the same size");
+        }
+
+        public static Matrix<long> operator +(Matrix<long> a, Matrix<long> b)
+        {
+
+        }
+
+        public static Matrix<int> operator +(Matrix<int> a, Matrix<int> b)
+        {
+
+        }
+
+        public static Matrix<short> operator +(Matrix<short> a, Matrix<short> b)
+        {
+
+        }
+
+        public static Matrix<BigInteger> operator +(Matrix<BigInteger> a, Matrix<BigInteger> b)
+        {
+
+        }
+
+        public static Matrix<Complex> operator +(Matrix<Complex> a, Matrix<Complex> b)
+        {
+
+        }
+
+        public static Matrix<decimal> operator -(Matrix<decimal> a, Matrix<decimal> b)
+        {
+
         }
 
         public static Matrix<double> operator-(Matrix<double> a, Matrix<double> b)
