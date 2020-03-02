@@ -10,7 +10,20 @@ namespace MatrixOperations
     {
         internal Tsource[][] value;
 
+        #region Constructor
         public Matrix(Tsource[][] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+            Tsource[][] newarr = new Tsource[array.Length][];
+            array.CopyTo(newarr, 0);
+
+            value = newarr;
+            Rows = new RowCollection<Tsource>(this);
+            Columns = new ColumnCollection<Tsource>(this);
+        }
+
+        public Matrix(ref Tsource[][] array)
         {
             if (array == null)
                 throw new ArgumentNullException();
@@ -19,6 +32,27 @@ namespace MatrixOperations
             Rows = new RowCollection<Tsource>(this);
             Columns = new ColumnCollection<Tsource>(this);
         }
+
+        public Matrix(uint rows, uint columns)
+        {
+            Tsource[][] arr;
+            if (rows == 0 || columns == 0)
+                arr = new Tsource[0][];
+            else
+            {
+                arr = new Tsource[rows][];
+                if (Environment.ProcessorCount > 1 && (rows >= 1000 || (rows > 1 && columns >= 1000)))
+                    Parallel.For(0, rows, row => arr[row] = new Tsource[columns]);
+                else
+                    for (int row = 0; row < rows; rows++)
+                        arr[row] = new Tsource[columns];
+            }
+
+            this.value = arr;
+        }
+
+        protected Matrix() { }
+        #endregion
 
         #region Properties
 
@@ -47,7 +81,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="count">Size of matrix</param>
         /// <returns>Identity matrix</returns>
-        public static Matrix<float> GenerateIdentity(uint count)
+        public static Matrix<float> GenerateIdentity<T>(uint count)
         {
             if (count == 0)
                 return new Matrix<float>(new float[0][]);
@@ -418,23 +452,10 @@ namespace MatrixOperations
             if (!CheckIsSizeEqual(matrices))
                 throw new InvalidOperationException("Sizes are not equal.");
 
-            var arr = new decimal[matrices[0].Rows.Count][];
-            for(int i = 0; i < arr.Length; i++)
-            {
-                arr[i] = new decimal[matrices[0].Columns.Count];
-
-                for (int j = 0; j < arr[i].Length; j++)
-                    arr[i][j] = matrices[0][i,j];
-            }
-
             var newmatrix = new Matrix<decimal>(matrices[0].value);
 
             for (int i = 1; i < matrices.Length; i++)
-                Parallel.For(0, newmatrix.Rows.Count, row =>
-                {
-                    for (int column = 0; column < newmatrix.Columns.Count; column++)
-                        newmatrix[row, column] += matrices[i][row,column];
-                });
+                newmatrix += matrices[i];
 
             return newmatrix;
         }
@@ -459,168 +480,249 @@ namespace MatrixOperations
             var newmatrix = new Matrix<double>(matrices[0].value);
 
             for (int i = 1; i < matrices.Length; i++)
-                Parallel.For(0, newmatrix.Rows.Count, row =>
-                {
-                    for (int column = 0; column < newmatrix.Columns.Count; column++)
-                        newmatrix[row, column] += matrices[i][row, column];
-                });
+                newmatrix += matrices[i];
 
             return newmatrix;
         }
 
         public static Matrix<float> Sum(params Matrix<float>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<float>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix += matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<long> Sum(params Matrix<long>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<long>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix += matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<int> Sum(params Matrix<int>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<int>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix += matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<short> Sum(params Matrix<short>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<short>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix += matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<BigInteger> Sum(params Matrix<BigInteger>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<BigInteger>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix += matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<Complex> Sum(params Matrix<Complex>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<Complex>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix += matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<decimal> Difference(params Matrix<decimal>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<decimal>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<double> Difference(params Matrix<double>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<double>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<float> Difference(params Matrix<float>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<float>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<long> Difference(params Matrix<long>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<long>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<int> Difference(params Matrix<int>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<int>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<short> Difference(params Matrix<short>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<short>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<byte> Difference(params Matrix<byte>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<byte>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<BigInteger> Difference(params Matrix<BigInteger>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
+
+            var newmatrix = new Matrix<BigInteger>(matrices[0].value);
+
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
+
+            return newmatrix;
         }
 
         public static Matrix<Complex> Difference(params Matrix<Complex>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
-        }
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
 
-        #endregion
+            var newmatrix = new Matrix<Complex>(matrices[0].value);
 
-        #region Operators overload
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix -= matrices[i];
 
-        public static Matrix<decimal> operator +(Matrix<decimal> a, Matrix<decimal> b)
-
-        public static Matrix<double> operator+(Matrix<double> a, Matrix<double> b)
-        {
-            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                throw new InvalidOperationException("Matrices must have the same size");
-        }
-
-        public static Matrix<float> operator +(Matrix<float> a, Matrix<float> b)
-        {
-            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                throw new InvalidOperationException("Matrices must have the same size");
-        }
-
-        public static Matrix<long> operator +(Matrix<long> a, Matrix<long> b)
-        {
-
-        }
-
-        public static Matrix<int> operator +(Matrix<int> a, Matrix<int> b)
-        {
-
-        }
-
-        public static Matrix<short> operator +(Matrix<short> a, Matrix<short> b)
-        {
-
-        }
-
-        public static Matrix<BigInteger> operator +(Matrix<BigInteger> a, Matrix<BigInteger> b)
-        {
-
-        }
-
-        public static Matrix<Complex> operator +(Matrix<Complex> a, Matrix<Complex> b)
-        {
-
-        }
-
-        public static Matrix<decimal> operator -(Matrix<decimal> a, Matrix<decimal> b)
-        {
-
-        }
-
-        public static Matrix<double> operator-(Matrix<double> a, Matrix<double> b)
-        {
-            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                throw new InvalidOperationException("Matrices must have the same size");
-        }
-
-        public static Matrix<float> operator -(Matrix<float> a, Matrix<float> b)
-        {
-            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
-                throw new InvalidOperationException("Matrices must have the same size");
-        }
-
-        public static Matrix<double> operator*(Matrix<double> a, Matrix<double> b)
-        {
-            if (a.Columns.Count != b.Rows.Count)
-                throw new InvalidOperationException("Matrix A must have the same number of columns as matrix B have rows.");
-        }
-
-        public static Matrix<double> operator*(Matrix<double> a, double b)
-        {
-            Matrix<double> ret = a;
-            for (int row = 0; row < a.Rows.Count; row++)
-                for (int column = 0; column < a.Columns.Count; column++)
-                    ret[row, column] *= b;
-            return ret;
-        }
-
-        public static Matrix<double> operator*(double a, Matrix<double> b)
-        {
-
+            return newmatrix;
         }
 
         #endregion
