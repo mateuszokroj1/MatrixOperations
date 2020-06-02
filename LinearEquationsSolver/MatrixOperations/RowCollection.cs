@@ -4,14 +4,18 @@ using System.Collections.Generic;
 
 namespace MatrixOperations
 {
-    public class RowCollection<Tsource> : IList<Tsource[]> where Tsource : struct
+    public class RowCollection<Tsource> : IList<Tsource[]>
+        where Tsource : struct, IEquatable<Tsource>
     {
+        #region Constructors
         public RowCollection(Matrix<Tsource> matrix)
         {
             if (matrix == null)
                 throw new ArgumentNullException();
         }
+        #endregion
 
+        #region Properties
         /// <summary>
         /// Access to row with selected index
         /// </summary>
@@ -39,10 +43,12 @@ namespace MatrixOperations
 
         protected Matrix<Tsource> matrix;
 
-        public int Count => this.matrix.value.GetUpperBound(0)+1;
+        public int Count => this.matrix.value.Length;
 
         public bool IsReadOnly => false;
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Search matrix for row equals to 'item' and return index of row in matrix or -1.
         /// </summary>
@@ -180,12 +186,25 @@ namespace MatrixOperations
         [Obsolete]
         public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotSupportedException();
 
-        /// <exception cref="NotSupportedException"/>
-        [Obsolete]
-        public bool Remove(Tsource[] item) => throw new NotSupportedException();
+        
+        public bool Remove(Tsource[] item)
+        {
+            if (item == null)
+                throw new ArgumentNullException();
+
+            int index = IndexOf(item);
+
+            if (index == -1)
+                return false;
+
+            RemoveAt(index);
+
+            return true;
+        }
 
         public IEnumerator<Tsource[]> GetEnumerator() => new RowEnumerator<Tsource>(this.matrix);
         
         IEnumerator IEnumerable.GetEnumerator() => new RowEnumerator<Tsource>(this.matrix);
+        #endregion
     }
 }

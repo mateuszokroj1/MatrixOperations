@@ -4,19 +4,17 @@ using System.Collections.Generic;
 
 namespace MatrixOperations
 {
-    public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct
+    public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct, IEquatable<Tsource>
     {
-        public ColumnCollection(Matrix<Tsource> matrix)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
+        #region Constructors
+        public ColumnCollection(Matrix<Tsource> matrix) =>
+            this.matrix = matrix ?? throw new ArgumentNullException();
+        #endregion
 
-            this.matrix = matrix;
-        }
-
+        #region Properties
         protected Matrix<Tsource> matrix;
 
-        public int Count => this.matrix.value.GetUpperBound(1) + 1;
+        public int Count => this.matrix.value.Length > 0 ? this.matrix.value[0].Length : 0;
 
         public bool IsReadOnly => false;
 
@@ -41,17 +39,19 @@ namespace MatrixOperations
                 if (value == null)
                     throw new ArgumentNullException();
 
-                if (value.Length != this.matrix.Rows.Count)
-                    throw new InvalidOperationException("New column must have the same length as exists.");
-
                 if (index >= Count)
                     throw new IndexOutOfRangeException();
+
+                if (value.Length != this.matrix.value[index].Length)
+                    throw new InvalidOperationException("New column must have the same length as exists.");
 
                 for (int i = 0; i < value.Length; i++)
                     this.matrix[i,index] = value[i];
             }
         }
+        #endregion
 
+        #region Methods
         /// <summary>Search matrix for column equals to 'item' and return index of column in matrix or -1.</summary>
         /// <param name="item">Column to search</param>
         /// <exception cref="ArgumentNullException"/>
@@ -60,7 +60,7 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != this.matrix.Rows.Count)
+            if (item.Length != (this.matrix.value.Length > 0 ? ))
                 return -1;
 
             int column = 0;
@@ -170,15 +170,32 @@ namespace MatrixOperations
 
         /// <exception cref="NotSupportedException"/>
         [Obsolete]
-        public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotImplementedException();
+        public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotSupportedException();
 
-        /// <exception cref="NotSupportedException" />
-        [Obsolete]
-        public bool Remove(Tsource[] item) => throw new NotSupportedException();
+        /// <summary>
+        /// Removes first column that is equal to argument
+        /// </summary>
+        /// <param name="item">Column to remove from matrix</param>
+        /// <returns>True, if column was removed</returns>
+        public bool Remove(Tsource[] item)
+        {
+            if (item == null)
+                throw new ArgumentNullException();
+
+            int index = IndexOf(item);
+
+            if (index == -1)
+                return false;
+
+            RemoveAt(index);
+
+            return true;
+        }
 
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         public IEnumerator<Tsource[]> GetEnumerator() => new ColumnEnumerator<Tsource>(this.matrix);
         IEnumerator IEnumerable.GetEnumerator() => new ColumnEnumerator<Tsource>(this.matrix);
+        #endregion
     }
 }

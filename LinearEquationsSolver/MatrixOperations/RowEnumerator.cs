@@ -5,14 +5,11 @@ using System.Text;
 
 namespace MatrixOperations
 {
-    public class RowEnumerator<Tsource> : IEnumerator<Tsource[]> where Tsource : struct
+    public class RowEnumerator<Tsource> : IEnumerator<Tsource[]>
+        where Tsource : struct, IEquatable<Tsource>
     {
-        public RowEnumerator(Matrix<Tsource> matrix)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-            this.matrix = matrix;
-        }
+        public RowEnumerator(Matrix<Tsource> matrix) =>
+            this.matrix = matrix ?? throw new ArgumentNullException();
 
         protected Matrix<Tsource> matrix;
         protected int index = -1;

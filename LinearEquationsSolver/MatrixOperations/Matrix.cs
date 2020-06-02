@@ -6,11 +6,16 @@ using System.Threading.Tasks;
 
 namespace MatrixOperations
 {
-    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>> where Tsource : struct
+    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>>
+        where Tsource : struct, IEquatable<Tsource>
     {
         internal Tsource[][] value;
 
         #region Constructor
+        /// <summary>
+        /// Copy existing array to new matrix
+        /// </summary>
+        /// <param name="array">Values to copy</param>
         public Matrix(Tsource[][] array)
         {
             if (array == null)
@@ -33,6 +38,11 @@ namespace MatrixOperations
             Columns = new ColumnCollection<Tsource>(this);
         }
 
+        /// <summary>
+        /// Creates matrix with default values for <see cref="Tsource" /> 
+        /// </summary>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
         public Matrix(uint rows, uint columns)
         {
             Tsource[][] arr;
@@ -41,7 +51,7 @@ namespace MatrixOperations
             else
             {
                 arr = new Tsource[rows][];
-                if (Environment.ProcessorCount > 1 && (rows >= 1000 || (rows > 1 && columns >= 1000)))
+                if (Environment.ProcessorCount > 1 && (rows >= 10000 || (rows > 1 && columns >= 10000)))
                     Parallel.For(0, rows, row => arr[row] = new Tsource[columns]);
                 else
                     for (int row = 0; row < rows; rows++)
@@ -51,20 +61,26 @@ namespace MatrixOperations
             this.value = arr;
         }
 
-        protected Matrix() { }
+        protected Matrix()
+        {
+            this.value = new Tsource[0][];
+        }
         #endregion
 
         #region Properties
 
-        public bool IsSquare => this.value.GetUpperBound(0) == this.value.GetUpperBound(1);
+        public bool IsSquare => Rows.Count == Columns.Count;
 
-        public bool IsVector => this.value.GetUpperBound(1) == 0 || this.value.GetUpperBound(0) == 0;
+        public bool IsVector => Rows.Count == 1 || Columns.Count == 1;
 
-
-        public Tsource this[int index1, int index2]
+        /// <summary>
+        /// Gets or sets the selected value of matrix
+        /// </summary>
+        /// <returns>Value of selected element of matrix</returns>
+        public Tsource this[int rowIndex, int columnIndex]
         {
-            get => this.value[index1][index2];
-            set { this.value[index1][index2] = value; }
+            get => this.value[rowIndex][columnIndex];
+            set { this.value[rowIndex][columnIndex] = value; }
         }
 
         public RowCollection<Tsource> Rows { get; protected set; }
@@ -736,11 +752,11 @@ namespace MatrixOperations
             if (other == null)
                 throw new ArgumentNullException();
 
-            if (this.value.GetUpperBound(0) != other.Rows.Count - 1 || this.value.GetUpperBound(1) != other.Columns.Count - 1)
+            if (Rows.Count != other.Rows.Count || Columns.Count != other.Columns.Count)
                 return false;
 
-            for (int row = 0; row <= this.value.GetUpperBound(0); row++)
-                for (int column = 0; column <= this.value.GetUpperBound(1); column++)
+            for (int row = 0; row < Rows.Count; row++)
+                for (int column = 0; column < Columns.Count; column++)
                     if (!this.value[row][column].Equals(other[row, column]))
                         return false;
             return true;
@@ -750,9 +766,9 @@ namespace MatrixOperations
         /// Create submatrix from this matrix in selected bounds
         /// </summary>
         /// <param name="firstRowIndex">Must be lower or equal than lastRowIndex</param>
-        /// <param name="lastRowIndex"></param>
-        /// <param name="firstColumnIndex"></param>
-        /// <param name="lastColumnIndex"></param>
+        /// <param name="lastRowIndex">Must be lower than number of rows</param>
+        /// <param name="firstColumnIndex">Must be lower or equal than lastColumnIndex</param>
+        /// <param name="lastColumnIndex">Must be lower than number of columns</param>
         /// <returns>SubMatrix</returns>
         public Matrix<Tsource> GenerateSubMatrix(uint firstRowIndex, uint lastRowIndex, uint firstColumnIndex, uint lastColumnIndex)
         {

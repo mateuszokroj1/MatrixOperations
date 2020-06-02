@@ -4,15 +4,11 @@ using System.Collections.Generic;
 
 namespace MatrixOperations
 {
-    public class ColumnEnumerator<Tsource> : IEnumerator<Tsource[]> where Tsource : struct
+    public class ColumnEnumerator<Tsource> : IEnumerator<Tsource[]>
+        where Tsource : struct, IEquatable<Tsource>
     {
-        public ColumnEnumerator(Matrix<Tsource> matrix)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            this.matrix = matrix;
-        }
+        public ColumnEnumerator(Matrix<Tsource> matrix) =>
+            this.matrix = matrix ?? throw new ArgumentNullException();
 
         protected Matrix<Tsource> matrix;
         protected int index = -1;
