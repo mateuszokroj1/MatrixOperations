@@ -13,6 +13,14 @@ namespace MatrixOperations
 
         #region Constructor
         /// <summary>
+        /// Creates empty matrix
+        /// </summary>
+        public Matrix()
+        {
+            this.value = new Tsource[0][];
+        }
+
+        /// <summary>
         /// Copy existing array to new matrix
         /// </summary>
         /// <param name="array">Values to copy</param>
@@ -61,10 +69,6 @@ namespace MatrixOperations
             this.value = arr;
         }
 
-        protected Matrix()
-        {
-            this.value = new Tsource[0][];
-        }
         #endregion
 
         #region Properties
@@ -770,33 +774,33 @@ namespace MatrixOperations
         /// <param name="firstColumnIndex">Must be lower or equal than lastColumnIndex</param>
         /// <param name="lastColumnIndex">Must be lower than number of columns</param>
         /// <returns>SubMatrix</returns>
-        public Matrix<Tsource> GenerateSubMatrix(uint firstRowIndex, uint lastRowIndex, uint firstColumnIndex, uint lastColumnIndex)
+        public Matrix<Tsource> GenerateSubMatrix(int firstRowIndex, int lastRowIndex, int firstColumnIndex, int lastColumnIndex)
         {
-            if (firstRowIndex >= Rows.Count)
+            if (firstRowIndex < 0 || firstRowIndex >= Rows.Count)
                 throw new IndexOutOfRangeException(nameof(firstRowIndex));
 
-            if (lastRowIndex >= Rows.Count)
+            if (lastRowIndex < 0 || lastRowIndex >= Rows.Count)
                 throw new IndexOutOfRangeException(nameof(lastRowIndex));
 
-            if (firstColumnIndex >= Columns.Count)
+            if (firstColumnIndex < 0 || firstColumnIndex >= Columns.Count)
                 throw new IndexOutOfRangeException(nameof(firstColumnIndex));
 
-            if (lastColumnIndex >= Columns.Count)
+            if (lastRowIndex < 0 || lastColumnIndex >= Columns.Count)
                 throw new IndexOutOfRangeException(nameof(lastColumnIndex));
 
             if (firstRowIndex > lastColumnIndex || firstColumnIndex > lastColumnIndex)
-                return new Matrix<Tsource>(new Tsource[0][]);
+                throw new InvalidOperationException("First index must be lower than or equal to last index");
 
             Tsource[][] array = new Tsource[lastRowIndex-firstRowIndex+1][];
 
-            for (int sourceRowIndex = (int)firstRowIndex, destRowIndex = 0; sourceRowIndex <= lastRowIndex && destRowIndex < Rows.Count; sourceRowIndex++, destRowIndex++)
+            for (int sourceRowIndex = firstRowIndex, destRowIndex = 0; sourceRowIndex <= lastRowIndex && destRowIndex < Rows.Count; sourceRowIndex++, destRowIndex++)
             {
                 array[destRowIndex] = new Tsource[lastColumnIndex - firstColumnIndex + 1];
-                for (int sourceColumnIndex = (int)firstColumnIndex, destColumnIndex = 0; sourceColumnIndex <= lastColumnIndex && destColumnIndex < Columns.Count; sourceColumnIndex++, destColumnIndex++)
+                for (int sourceColumnIndex = firstColumnIndex, destColumnIndex = 0; sourceColumnIndex <= lastColumnIndex && destColumnIndex < Columns.Count; sourceColumnIndex++, destColumnIndex++)
                     array[destRowIndex][destColumnIndex] = this[sourceRowIndex, sourceColumnIndex];
             }
 
-            return new Matrix<Tsource>(array);
+            return new Matrix<Tsource>(ref array);
         }
 
         public Matrix<Tsource> SkipColumn(uint columnIndex)
@@ -856,11 +860,14 @@ namespace MatrixOperations
 
     public enum AngleMode { Radians = 0, Degrees = 1 }
 
+    /// <summary>
+    /// Extension methods for <see cref="Matrix{Tsource}"/> class in selected Tsource types
+    /// </summary>
     public static class ExtensionMethods
     {
         #region CalculateDeterminant
         /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
+        /// Calculate determinant for square matrix or throw <see cref="InvalidOperationException"/> if <paramref name="matrix"/> is invalid.
         /// </summary>
         /// <returns>Determinant if exists</returns>
         /// <exception cref="InvalidOperationException"/>
@@ -1226,120 +1233,20 @@ namespace MatrixOperations
         #endregion
 
         #region CheckIsDiagonal
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<decimal> matrix)
+        /// <summary>
+        /// Checks if the given matrix is diagonal.
+        /// In a diagonal matrix, non-diagonal values must have a default value.
+        /// </summary>
+        public static bool CheckIsDiagonal<TSource>(this Matrix<TSource> matrix)
+            where TSource : struct, IEquatable<TSource>
         {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != 0)
+            if (matrix.Rows.Count == 0 || !matrix.IsSquare)
+                return false;
+
+            for (int row = 0; row < matrix.Rows.Count; row++)
+                for (int column = 0; column < matrix.Columns.Count; column++)
+                    if (row != column && !matrix.value[row][column].Equals(default))
                         return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<double> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != 0)
-                        return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<float> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != 0)
-                        return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<long> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != 0)
-                        return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<int> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != 0)
-                        return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<short> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != 0)
-                        return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<byte> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != 0)
-                        return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<BigInteger> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != BigInteger.Zero)
-                        return false;
-            }
-
-            return true;
-        }
-
-        /// <returns>True, if matrix is diagonal</returns>
-        public static bool CheckIsDiagonal(this Matrix<Complex> matrix)
-        {
-            for (int i = 0; i < matrix.Rows.Count; i++)
-            {
-                for (int j = 0; j < matrix.Columns.Count; j++)
-                    if (i != j && matrix[i, j] != Complex.Zero)
-                        return false;
-            }
 
             return true;
         }
@@ -1347,11 +1254,15 @@ namespace MatrixOperations
 
         #region AsVector
         /// <summary>
-        /// Get vector array if matrix have only one row or one column
+        /// Get vector array if matrix have only one row or one column or is diagonal
         /// </summary>
         /// <returns>Vector array</returns>
-        public static decimal[] AsVector(this Matrix<decimal> matrix)
+        public static IEnumerable<TSource> AsVector<TSource>(this Matrix<TSource> matrix)
+            where TSource : struct, IEquatable<TSource>
         {
+            if (matrix.Rows.Count == 0)
+                return new TSource[0];
+
             if (!matrix.IsVector || !matrix.CheckIsDiagonal())
                 throw new InvalidOperationException("Matrix is not vector or diagonal");
 
@@ -1361,229 +1272,10 @@ namespace MatrixOperations
                 return matrix.Columns[0];
             else
             {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                decimal[] ret = new decimal[matrix.Rows.Count];
+                TSource[] ret = new TSource[matrix.Rows.Count];
 
                 for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static double[] AsVector(this Matrix<double> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                double[] ret = new double[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static float[] AsVector(this Matrix<float> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                float[] ret = new float[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static long[] AsVector(this Matrix<long> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                long[] ret = new long[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static int[] AsVector(this Matrix<int> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                int[] ret = new int[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static short[] AsVector(this Matrix<short> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                short[] ret = new short[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static byte[] AsVector(this Matrix<byte> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                byte[] ret = new byte[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static BigInteger[] AsVector(this Matrix<BigInteger> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                BigInteger[] ret = new BigInteger[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static Complex[] AsVector(this Matrix<Complex> matrix)
-        {
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                if (!matrix.IsSquare)
-                    throw new InvalidOperationException("Matrix is not square.");
-
-                Complex[] ret = new Complex[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix[i, i];
+                    ret[i] = matrix.value[i][i];
 
                 return ret;
             }
