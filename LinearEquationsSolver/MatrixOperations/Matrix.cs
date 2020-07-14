@@ -1179,7 +1179,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="matrix"></param>
         /// <returns>Inverted matrix</returns>
-        public static Matrix<decimal> Inversion(this Matrix<decimal> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
+        public static Matrix<decimal> Inversion(this Matrix<decimal> matrix) => Matrix matrix.Transpose() * (1 / matrix.CalculateDeterminant());
 
         /// <summary>
         /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
@@ -1280,6 +1280,51 @@ namespace MatrixOperations
                 return ret;
             }
         }
+        #endregion
+
+        #region MultiplyWithScalar
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        public static void MultiplyWithScalar(this Matrix<decimal> matrix, decimal scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1.0M)
+                return;
+
+            if (matrix.Rows.Count >= 5000)
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (matrix.Columns.Count >= 5000)
+            {
+
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        #endregion
+
+        #region MultiplyColumnWithScalar
+
+        public static void MultiplyColumnWithScalar(this Matrix<decimal> matrix, int rowIndex, decimal scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1.0M)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
         #endregion
     }
 }
