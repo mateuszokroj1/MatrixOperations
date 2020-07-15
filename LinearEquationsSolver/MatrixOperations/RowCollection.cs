@@ -7,12 +7,16 @@ namespace MatrixOperations
     public class RowCollection<Tsource> : IList<Tsource[]>
         where Tsource : struct, IEquatable<Tsource>
     {
+        #region Fields
+
+        private Matrix<Tsource> matrix;
+
+        #endregion
+
         #region Constructors
-        public RowCollection(Matrix<Tsource> matrix)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-        }
+
+        public RowCollection(Matrix<Tsource> matrix) => this.matrix = matrix ?? throw new ArgumentNullException();
+
         #endregion
 
         #region Properties
@@ -40,8 +44,6 @@ namespace MatrixOperations
                 this.matrix.value[index] = value;
             }
         }
-
-        protected Matrix<Tsource> matrix;
 
         public int Count => this.matrix.value.Length;
 

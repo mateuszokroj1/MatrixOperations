@@ -1,18 +1,27 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MatrixOperations
 {
     public class RowEnumerator<Tsource> : IEnumerator<Tsource[]>
         where Tsource : struct, IEquatable<Tsource>
     {
+        #region Fields
+
+        private Matrix<Tsource> matrix;
+        private int index = -1;
+
+        #endregion
+
+        #region Constructors
+
         public RowEnumerator(Matrix<Tsource> matrix) =>
             this.matrix = matrix ?? throw new ArgumentNullException();
 
-        protected Matrix<Tsource> matrix;
-        protected int index = -1;
+        #endregion
+
+        #region Properties
 
         public Tsource[] Current
         {
@@ -27,7 +36,12 @@ namespace MatrixOperations
 
         object IEnumerator.Current => this.Current;
 
-        public void Dispose() { this.matrix = null; }
+        #endregion
+
+        #region Methods
+
+        public void Dispose() => this.matrix = null;
+
         public bool MoveNext()
         {
             if (this.index >= this.matrix.Rows.Count)
@@ -36,6 +50,9 @@ namespace MatrixOperations
             this.index++;
             return true;
         }
+
         public void Reset() => this.index = -1;
+
+        #endregion
     }
 }

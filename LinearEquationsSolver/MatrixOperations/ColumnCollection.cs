@@ -6,13 +6,20 @@ namespace MatrixOperations
 {
     public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct, IEquatable<Tsource>
     {
+        #region Fields
+
+        private Matrix<Tsource> matrix;
+
+        #endregion
+
         #region Constructors
+
         public ColumnCollection(Matrix<Tsource> matrix) =>
             this.matrix = matrix ?? throw new ArgumentNullException();
+
         #endregion
 
         #region Properties
-        protected Matrix<Tsource> matrix;
 
         public int Count => this.matrix.value.Length > 0 ? this.matrix.value[0].Length : 0;
 
@@ -60,7 +67,7 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != (this.matrix.value.Length > 0 ? ))
+            if (item.Length != matrix.Rows.Count)
                 return -1;
 
             int column = 0;
