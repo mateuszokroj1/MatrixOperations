@@ -1287,6 +1287,7 @@ namespace MatrixOperations
         /// <summary>
         /// Multiplies all matrix cells with scalar value
         /// </summary>
+        /// <exception cref="ArgumentNullException"/>
         public static void MultiplyWithScalar(this Matrix<decimal> matrix, decimal scalarValue)
         {
             if (matrix == null)
@@ -1299,7 +1300,227 @@ namespace MatrixOperations
                 Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
             else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
             {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
 
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<double> matrix, double scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1.0d)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<float> matrix, float scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1.0f)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<long> matrix, long scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<int> matrix, int scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<short> matrix, short scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1.0M)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<byte> matrix, byte scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1.0M)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<BigInteger> matrix, BigInteger scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == 1)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static void MultiplyWithScalar(this Matrix<Complex> matrix, Complex scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (scalarValue == Complex.One)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
+                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
+            {
+                Parallel.For(0, matrix.Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
+                        matrix[rowIndex, columnIndex] *= scalarValue;
+                });
             }
             else
                 for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
@@ -1319,7 +1540,6 @@ namespace MatrixOperations
         {
             if (matrix == null)
                 throw new ArgumentNullException();
-
 
             if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
                 throw new IndexOutOfRangeException();
@@ -1341,11 +1561,151 @@ namespace MatrixOperations
             if (matrix == null)
                 throw new ArgumentNullException();
 
-
             if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
                 throw new IndexOutOfRangeException();
 
             if (scalarValue == 1.0d)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<float> matrix, int rowIndex, float scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1.0f)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<long> matrix, int rowIndex, long scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<int> matrix, int rowIndex, int scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<short> matrix, int rowIndex, short scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<byte> matrix, int rowIndex, byte scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<BigInteger> matrix, int rowIndex, BigInteger scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<Complex> matrix, int rowIndex, Complex scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == Complex.One)
                 return;
 
             for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
