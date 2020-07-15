@@ -1295,9 +1295,9 @@ namespace MatrixOperations
             if (scalarValue == 1.0M)
                 return;
 
-            if (matrix.Rows.Count >= 5000)
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
                 Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (matrix.Columns.Count >= 5000)
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
             {
 
             }
@@ -1310,15 +1310,42 @@ namespace MatrixOperations
 
         #region MultiplyColumnWithScalar
 
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
         public static void MultiplyColumnWithScalar(this Matrix<decimal> matrix, int rowIndex, decimal scalarValue)
         {
             if (matrix == null)
                 throw new ArgumentNullException();
 
+
             if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
                 throw new IndexOutOfRangeException();
 
             if (scalarValue == 1.0M)
+                return;
+
+            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
+                matrix[rowIndex, columnIndex] *= scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        /// <exception cref="IndexOutOfRangeException" />
+        public static void MultiplyColumnWithScalar(this Matrix<double> matrix, int rowIndex, double scalarValue)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+
+            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if (scalarValue == 1.0d)
                 return;
 
             for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
