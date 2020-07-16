@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MatrixOperations
 {
-    public class RowEnumerator<Tsource> : IEnumerator<Tsource[]>
+    internal class RowEnumerator<Tsource> : IEnumerator<Tsource[]>
         where Tsource : struct, IEquatable<Tsource>
     {
         #region Fields

@@ -6,12 +6,17 @@ using System.Threading.Tasks;
 
 namespace MatrixOperations
 {
-    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>>
+    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>>, ICloneable
         where Tsource : struct, IEquatable<Tsource>
     {
+        #region Fields
+
         internal Tsource[][] value;
 
-        #region Constructor
+        #endregion
+
+        #region Constructors
+
         /// <summary>
         /// Creates empty matrix
         /// </summary>
@@ -24,6 +29,7 @@ namespace MatrixOperations
         /// Copy existing array to new matrix
         /// </summary>
         /// <param name="array">Values to copy</param>
+        /// <exception cref="ArgumentNullException" />
         public Matrix(Tsource[][] array)
         {
             if (array == null)
@@ -36,12 +42,14 @@ namespace MatrixOperations
             Columns = new ColumnCollection<Tsource>(this);
         }
 
+        /// <summary>
+        /// Creates new matrix with referenced array
+        /// </summary>
+        /// <param name="array"></param>
         public Matrix(ref Tsource[][] array)
         {
-            if (array == null)
-                throw new ArgumentNullException();
+            value = array ?? throw new ArgumentNullException();
 
-            value = array;
             Rows = new RowCollection<Tsource>(this);
             Columns = new ColumnCollection<Tsource>(this);
         }
@@ -59,15 +67,37 @@ namespace MatrixOperations
             else
             {
                 arr = new Tsource[rows][];
-                if (Environment.ProcessorCount > 1 && (rows >= 10000 || (rows > 1 && columns >= 10000)))
-                    Parallel.For(0, rows, row => arr[row] = new Tsource[columns]);
+
+                if (MatrixOperationsSettings.CheckIsParallelModeUseful(rows))
+                    Parallel.For(0, rows, rowIndex => arr[rowIndex] = new Tsource[columns]);
                 else
-                    for (int row = 0; row < rows; rows++)
-                        arr[row] = new Tsource[columns];
+                    for (int rowIndex = 0; rowIndex < rows; rowIndex++)
+                        arr[rowIndex] = new Tsource[columns];
             }
 
             this.value = arr;
         }
+
+        /// <summary>
+        /// Copies values from other matrix to new instance
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <exception cref="ArgumentNullException" />
+        public Matrix(Matrix<Tsource> matrix)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if(matrix.value == null)
+            {
+                this.value = null;
+                return;
+            }
+
+            this.value = new Tsource[matrix.value.Length][];
+            matrix.value.CopyTo(this.value, 0);
+        }
+
 
         #endregion
 
@@ -759,6 +789,10 @@ namespace MatrixOperations
             if (Rows.Count != other.Rows.Count || Columns.Count != other.Columns.Count)
                 return false;
 
+            bool retValue = true;
+
+            if(MatrixOperationsSettings.CheckIsParallelModeUseful())
+
             for (int row = 0; row < Rows.Count; row++)
                 for (int column = 0; column < Columns.Count; column++)
                     if (!this.value[row][column].Equals(other[row, column]))
@@ -854,6 +888,8 @@ namespace MatrixOperations
 
             return new Matrix<Tsource>(newarray);
         }
+
+        public object Clone() => new Matrix<Tsource>(value);
 
         #endregion
     }
