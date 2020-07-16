@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,32 +11,29 @@ namespace MatrixOperations.Readers
     {
         #region Fields
 
-        private StringReader reader;
-        private string rowSeparator;
-        private string columnSeparator;
+        private string content;
+        private string rowsSeparator;
+        private string columnsSeparator;
 
         #endregion
 
         #region Constructors
 
-        public CsvReader(string csvString, string rowSeparator = "\n\r", string columnSeparator = ";")
+        public CsvReader(string csvString, string rowsSeparator = "\n\r", string columnsSeparator = ";")
         {
-            if (csvString == null)
-                throw new ArgumentNullException();
+            this.content = csvString ?? throw new ArgumentNullException();
 
-            if (string.IsNullOrEmpty(rowSeparator))
-                throw new ArgumentException(nameof(rowSeparator));
+            if (string.IsNullOrEmpty(rowsSeparator))
+                throw new ArgumentException(nameof(rowsSeparator));
 
-            if (string.IsNullOrEmpty(columnSeparator))
-                throw new ArgumentException(nameof(columnSeparator));
+            if (string.IsNullOrEmpty(columnsSeparator))
+                throw new ArgumentException(nameof(columnsSeparator));
 
-            this.reader = new StringReader(csvString);
-
-            this.rowSeparator = rowSeparator;
-            this.columnSeparator = columnSeparator;
+            this.rowsSeparator = rowsSeparator;
+            this.columnsSeparator = columnsSeparator;
         }
 
-        public CsvReader(Stream textStream, Encoding textEncoding)
+        public CsvReader(Stream textStream, Encoding textEncoding, string rowsSeparator = "\n\r", string columnsSeparator = ";")
         {
             if (textStream == null)
                 throw new ArgumentNullException(nameof(textStream));
@@ -46,43 +44,99 @@ namespace MatrixOperations.Readers
             if (!textStream.CanRead)
                 throw new IOException("Stream is not readable.");
 
-            if(textStream.Length < 1)
+            if (string.IsNullOrEmpty(rowsSeparator))
+                throw new ArgumentException(nameof(rowsSeparator));
+
+            if (string.IsNullOrEmpty(columnsSeparator))
+                throw new ArgumentException(nameof(columnsSeparator));
+
+            this.rowsSeparator = rowsSeparator;
+            this.columnsSeparator = columnsSeparator;
+
+            if (textStream.Length < 1)
             {
-                this.reader = new StringReader(string.Empty);
+                this.content = string.Empty;
                 return;
             }
 
             textStream.Position = 0;
             byte[] buffer = new byte[textStream.Length];
             textStream.Read(buffer, 0, buffer.Length);
-            string readedText = textEncoding.GetString(buffer);
 
-            this.reader = new StringReader(readedText);
+            this.content = textEncoding.GetString(buffer);
         }
 
         #endregion
 
         #region Properties
 
-        public string 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="ArgumentException"/>
+        public string RowsSeparator
+        {
+            get => this.rowsSeparator;
+            set
+            {
+                if(this.rowsSeparator != value)
+                {
+                    if (string.IsNullOrEmpty(value))
+                        throw new ArgumentException();
+
+                    this.rowsSeparator = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="ArgumentException" />
+        public string ColumnsSeparator
+        {
+            get => this.columnsSeparator;
+            set
+            {
+                if(this.columnsSeparator != value)
+                {
+                    if (string.IsNullOrEmpty(value))
+                        throw new ArgumentException();
+
+                    this.columnsSeparator = value;
+                }
+            }
+        }
 
         #endregion
 
         #region Methods
 
         public Matrix<Tsource> ReadMatrix<Tsource>()
+            where Tsource : struct, IEquatable<Tsource> => ReadMatrixAsync<Tsource>().Result;
+
+        public async Task<Matrix<Tsource>> ReadMatrixAsync<Tsource>()
             where Tsource : struct, IEquatable<Tsource>
         {
-            throw new NotImplementedException();
-        }
+            string[][] values = null;
 
-        public Task<Matrix<Tsource>> ReadMatrixAsync<Tsource>()
-            where Tsource : struct, IEquatable<Tsource>
-        {
-            throw new NotImplementedException();
-        }
+            lock (this.rowsSeparator)
+            {
+                lock(this.columnsSeparator)
+                {
+                    lock(this.content)
+                    {
+                        values = this.content
+                            .Split(new string[] { RowsSeparator }, StringSplitOptions.None)
+                            .Select(row => row.Split(new string[] { columnsSeparator }, StringSplitOptions.None))
+                            .ToArray();
+                    }
+                }
+            }
 
-        protected 
+            Tsource[][] parsedValues = values.Select(row => row.Select(cell => (Tsource)Convert.ChangeType(cell, typeof(Tsource))).ToArray()
+            ).ToArray();
+        }
 
         #endregion
     }
