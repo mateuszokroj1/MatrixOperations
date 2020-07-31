@@ -3,10 +3,39 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+
+
+//[assembly: InternalsVisibleTo("MatrixOperations.Tests")]
 
 namespace MatrixOperations
 {
-    public class Matrix<Tsource> : IEquatable<Matrix<Tsource>>, ICloneable
+    public abstract class Matrix
+    {
+        public static Matrix operator*(Matrix a, Matrix b)
+        {
+            if (a == null || b == null)
+                throw new ArgumentNullException();
+
+            if(a.)
+        }
+
+        public static Matrix operator+(Matrix a, Matrix b)
+        {
+
+        }
+
+        public static Matrix operator-(Matrix a, Matrix b)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// Basic matrix class. Values are saved in 2-dimensional array
+    /// </summary>
+    /// <typeparam name="Tsource"></typeparam>
+    public class Matrix<Tsource> : Matrix, IEquatable<Matrix<Tsource>>, ICloneable
         where Tsource : struct, IEquatable<Tsource>
     {
         #region Fields
@@ -45,7 +74,8 @@ namespace MatrixOperations
         /// <summary>
         /// Creates new matrix with referenced array
         /// </summary>
-        /// <param name="array"></param>
+        /// <param name="array">Reference to array</param>
+        /// <exception cref="ArgumentNullException"/>
         public Matrix(ref Tsource[][] array)
         {
             value = array ?? throw new ArgumentNullException();
@@ -94,8 +124,27 @@ namespace MatrixOperations
                 return;
             }
 
+            if (matrix.value.Where(row => row == null).Count() < 0)
+                throw new ArgumentException("Some rows in matrix is null.");
+
+            if(matrix.value.Length < 1 || matrix.value[0].Length < 1)
+            {
+                this.value = new Tsource[0][];
+                return;
+            }
+
             this.value = new Tsource[matrix.value.Length][];
-            matrix.value.CopyTo(this.value, 0);
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.value.Length))
+                Parallel.For(0, this.value.Length, index =>
+                {
+
+                });
+            else
+                for()
+                {
+
+                }
         }
 
 
@@ -127,24 +176,24 @@ namespace MatrixOperations
 
         #region Generators
         /// <summary>
-        /// Create identity square matrix countXcount size
+        /// Create identity square <see cref="Matrix{Tsource}"/> <paramref name="count"/> X <paramref name="count"/> size
         /// </summary>
         /// <param name="count">Size of matrix</param>
         /// <returns>Identity matrix</returns>
-        public static Matrix<float> GenerateIdentity<T>(uint count)
+        public static Matrix<Tsource> GenerateIdentity(uint count)
         {
             if (count == 0)
-                return new Matrix<float>(new float[0][]);
+                return new Matrix<Tsource>(new Tsource[0][]);
 
-            var array = new float[count][];
+            var array = new Tsource[count][];
 
             for (int i = 0; i < count; i++)
             {
-                array[i] = new float[count];
-                array[i][i] = 1;
+                array[i] = new Tsource[count];
+                array[i][i] = (dynamic)1;
             }
 
-            return new Matrix<float>(array);
+            return new Matrix<Tsource>(array);
         }
 
         /// <summary>
@@ -152,16 +201,16 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="vector">Vector</param>
         /// <returns>Diagonal matrix</returns>
-        public static Matrix<TSource> GenerateDiagonal<TSource>(TSource[] vector) where TSource : struct
+        public static Matrix<Tsource> GenerateDiagonal(Tsource[] vector)
         {
             if (vector == null)
                 throw new ArgumentNullException();
 
-            TSource[][] arr = new TSource[vector.Length][];
+            Tsource[][] arr = new Tsource[vector.Length][];
 
             for(int i = 0; i < vector.Length; i++)
             {
-                arr[i] = new TSource[vector.Length];
+                arr[i] = new Tsource[vector.Length];
 
                 for (int j = 0; j < vector.Length; j++)
                     if (i == j)
@@ -170,55 +219,14 @@ namespace MatrixOperations
                         arr[i][j] = default;
             }
 
-            return new Matrix<TSource>(arr);
+            return new Matrix<Tsource>(arr);
         }
-
-        #region Transformation matrix
-        public static Matrix<double> GenerateTranslate2D(double moveX, double moveY)
-        {
-
-        }
-
-        public static Matrix<float> GenerateTranslate2D(float moveX, float moveY)
-        {
-
-        }
-
-        public static Matrix<long> GenerateTranslate2D(long moveX, long moveY)
-        {
-
-        }
-
-        public static Matrix<int> GenerateTranslate2D(int moveX, int moveY)
-        {
-
-        }
-
-        public static Matrix<short> GenerateTranslate2D(short moveX, short moveY)
-        {
-
-        }
-
-        public static Matrix<Complex> GenerateTranslate2D(Complex moveX, Complex moveY)
-        {
-
-        }
-
-        public static Matrix<double> GenerateTranslate3D(double moveX, double moveY, double moveZ)
-        {
-
-        }
-
-        public static Matrix<double> GenerateRotate2D(double angle, AngleMode angleMode, double centerX = 0, double centerY = 0)
-        {
-
-        }
-
-        #endregion
 
         #endregion
 
         #region Methods
+
+
 
         public static bool CheckIsSizeEqual<TSource>(params Matrix<TSource>[] matrices) where TSource : struct
         => matrices
@@ -791,7 +799,11 @@ namespace MatrixOperations
 
             bool retValue = true;
 
-            if(MatrixOperationsSettings.CheckIsParallelModeUseful())
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
+            {
+
+            }
+            else if(MatrixOperationsSettings.CheckIsParallelModeUseful())
 
             for (int row = 0; row < Rows.Count; row++)
                 for (int column = 0; column < Columns.Count; column++)
@@ -901,13 +913,14 @@ namespace MatrixOperations
     /// </summary>
     public static class ExtensionMethods
     {
-        #region CalculateDeterminant
+
         /// <summary>
         /// Calculate determinant for square matrix or throw <see cref="InvalidOperationException"/> if <paramref name="matrix"/> is invalid.
         /// </summary>
         /// <returns>Determinant if exists</returns>
         /// <exception cref="InvalidOperationException"/>
-        public static decimal CalculateDeterminant(this Matrix<decimal> matrix)
+        public static Tsource CalculateDeterminant<Tsource>(this Matrix<Tsource> matrix)
+            where Tsource : struct, IEquatable<Tsource>
         {
             if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
                 throw new InvalidOperationException("Matrix must be a square");
@@ -916,61 +929,23 @@ namespace MatrixOperations
                 return matrix[0, 0];
 
             if (matrix.Rows.Count == 2)
-                return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
+                return (dynamic)matrix[0, 0] * matrix[1, 1] - (dynamic)matrix[0, 1] * matrix[1, 0];
 
             if (matrix.Rows.Count == 3)
                 return
-                    matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
+                    (dynamic)matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
+                  + (dynamic)matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
+                  + (dynamic)matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
 
-                  - matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
+                  - (dynamic)matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
+                  - (dynamic)matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
+                  - (dynamic)matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
             else
             {
-                var sum = matrix[0, 0] - matrix[0, 0];
+                var sum = (dynamic)matrix[0, 0] - matrix[0, 0];
 
                 for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
-                        * (decimal)Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return sum;
-            }
-        }
-
-        /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static double CalculateDeterminant(this Matrix<double> matrix)
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0,0];
-            
-            if (matrix.Rows.Count == 2)
-                return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1,0];
-
-            if (matrix.Rows.Count == 3)
-                return
-                    matrix[0,0]*matrix[1,1]*matrix[2,2]
-                  + matrix[1,0]*matrix[2,1]*matrix[0,2]
-                  + matrix[2,0]*matrix[0,1]*matrix[1,2]
-                    
-                  - matrix[2,0]*matrix[1,1]*matrix[0,2]
-                  - matrix[0,0]*matrix[2,1]*matrix[1,2]
-                  - matrix[1,0]*matrix[0,1]*matrix[2,2];
-            else
-            {
-                var sum = matrix[0,0]-matrix[0,0];
-
-                for(int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
+                    sum += (dynamic)matrix[0, column]
                         * Math.Pow(-1, 2 + column)
                         * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
 
@@ -979,302 +954,20 @@ namespace MatrixOperations
         }
 
         /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static float CalculateDeterminant(this Matrix<float> matrix)
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0, 0];
-
-            if (matrix.Rows.Count == 2)
-                return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
-
-            if (matrix.Rows.Count == 3)
-                return
-                    matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
-
-                  - matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
-            else
-            {
-                var sum = matrix[0, 0] - matrix[0, 0];
-
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
-                        * (float)Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return sum;
-            }
-        }
-
-        /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static long CalculateDeterminant(this Matrix<long> matrix)
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0, 0];
-
-            if (matrix.Rows.Count == 2)
-                return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
-
-            if (matrix.Rows.Count == 3)
-                return
-                    matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
-
-                  - matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
-            else
-            {
-                var sum = matrix[0, 0] - matrix[0, 0];
-
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
-                        * (long)Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return sum;
-            }
-        }
-
-        /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static int CalculateDeterminant(this Matrix<int> matrix)
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0, 0];
-
-            if (matrix.Rows.Count == 2)
-                return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
-
-            if (matrix.Rows.Count == 3)
-                return
-                    matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
-
-                  - matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
-            else
-            {
-                var sum = matrix[0, 0] - matrix[0, 0];
-
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
-                        * (int)Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return sum;
-            }
-        }
-
-        /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static short CalculateDeterminant(this Matrix<short> matrix)
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0, 0];
-
-            if (matrix.Rows.Count == 2)
-                return (short)(matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0]);
-
-            if (matrix.Rows.Count == 3)
-                return (short)
-                    (matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
-
-                  - matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - matrix[1, 0] * matrix[0, 1] * matrix[2, 2]);
-            else
-            {
-                var sum = matrix[0, 0] - matrix[0, 0];
-
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
-                        * (short)Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return (short)sum;
-            }
-        }
-
-        /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static Complex CalculateDeterminant(this Matrix<Complex> matrix)
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0, 0];
-
-            if (matrix.Rows.Count == 2)
-                return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
-
-            if (matrix.Rows.Count == 3)
-                return
-                    matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
-
-                  - matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
-            else
-            {
-                var sum = matrix[0, 0] - matrix[0, 0];
-
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
-                        * Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return sum;
-            }
-        }
-
-        /// <summary>
-        /// Calculate determinant for square matrix or throw InvalidOperationException if matrix is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static BigInteger CalculateDeterminant(this Matrix<BigInteger> matrix)
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0, 0];
-
-            if (matrix.Rows.Count == 2)
-                return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
-
-            if (matrix.Rows.Count == 3)
-                return
-                    matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
-
-                  - matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
-            else
-            {
-                var sum = matrix[0, 0] - matrix[0, 0];
-
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += matrix[0, column]
-                        * (int)Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return sum;
-            }
-        }
-
-        #endregion
-
-        #region Inversion
-
-        /// <summary>
         /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
         /// </summary>
         /// <param name="matrix"></param>
         /// <returns>Inverted matrix</returns>
-        public static Matrix<decimal> Inversion(this Matrix<decimal> matrix) => Matrix matrix.Transpose() * (1 / matrix.CalculateDeterminant());
+        public static Matrix<Tsource> Inversion<Tsource>(this Matrix<Tsource> matrix)
+            where Tsource : struct, IEquatable<Tsource>
+            => (dynamic)matrix.Transpose() * ((dynamic)1 / matrix.CalculateDeterminant());
 
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<double> Inversion(this Matrix<double> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<float> Inversion(this Matrix<float> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<long> Inversion(this Matrix<long> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<int> Inversion(this Matrix<int> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<short> Inversion(this Matrix<short> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<Complex> Inversion(this Matrix<Complex> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<BigInteger> Inversion(this Matrix<BigInteger> matrix) => matrix.Transpose() * (1 / matrix.CalculateDeterminant());
-
-        #endregion
-
-        #region CheckIsDiagonal
         /// <summary>
         /// Checks if the given matrix is diagonal.
         /// In a diagonal matrix, non-diagonal values must have a default value.
         /// </summary>
-        public static bool CheckIsDiagonal<TSource>(this Matrix<TSource> matrix)
-            where TSource : struct, IEquatable<TSource>
+        public static bool CheckIsDiagonal<Tsource>(this Matrix<Tsource> matrix)
+            where Tsource : struct, IEquatable<Tsource>
         {
             if (matrix.Rows.Count == 0 || !matrix.IsSquare)
                 return false;
@@ -1286,18 +979,16 @@ namespace MatrixOperations
 
             return true;
         }
-        #endregion
 
-        #region AsVector
         /// <summary>
         /// Get vector array if matrix have only one row or one column or is diagonal
         /// </summary>
         /// <returns>Vector array</returns>
-        public static IEnumerable<TSource> AsVector<TSource>(this Matrix<TSource> matrix)
-            where TSource : struct, IEquatable<TSource>
+        public static IEnumerable<Tsource> AsVector<Tsource>(this Matrix<Tsource> matrix)
+            where Tsource : struct, IEquatable<Tsource>
         {
             if (matrix.Rows.Count == 0)
-                return new TSource[0];
+                return new Tsource[0];
 
             if (!matrix.IsVector || !matrix.CheckIsDiagonal())
                 throw new InvalidOperationException("Matrix is not vector or diagonal");
@@ -1308,7 +999,7 @@ namespace MatrixOperations
                 return matrix.Columns[0];
             else
             {
-                TSource[] ret = new TSource[matrix.Rows.Count];
+                Tsource[] ret = new Tsource[matrix.Rows.Count];
 
                 for (int i = 0; i < matrix.Rows.Count; i++)
                     ret[i] = matrix.value[i][i];
@@ -1316,20 +1007,18 @@ namespace MatrixOperations
                 return ret;
             }
         }
-        #endregion
-
-        #region MultiplyWithScalar
 
         /// <summary>
         /// Multiplies all matrix cells with scalar value
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<decimal> matrix, decimal scalarValue)
+        public static void MultiplyWithScalar<Tsource>(this Matrix<Tsource> matrix, Tsource scalarValue)
+            where Tsource : struct, IEquatable<Tsource>
         {
             if (matrix == null)
                 throw new ArgumentNullException();
 
-            if (scalarValue == 1.0M)
+            if ((dynamic)scalarValue == 1)
                 return;
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
@@ -1339,7 +1028,7 @@ namespace MatrixOperations
                 Parallel.For(0, matrix.Columns.Count, columnIndex =>
                 {
                     for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
+                        matrix[rowIndex, columnIndex] *= (dynamic)scalarValue;
                 });
             }
             else
@@ -1348,231 +1037,12 @@ namespace MatrixOperations
         }
 
         /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<double> matrix, double scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == 1.0d)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<float> matrix, float scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == 1.0f)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<long> matrix, long scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == 1)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<int> matrix, int scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == 1)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<short> matrix, short scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == 1.0M)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<byte> matrix, byte scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == 1.0M)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<BigInteger> matrix, BigInteger scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == 1)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar(this Matrix<Complex> matrix, Complex scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (scalarValue == Complex.One)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        #endregion
-
-        #region MultiplyColumnWithScalar
-
-        /// <summary>
         /// Multiplies selected column with scalar value
         /// </summary>
         /// <exception cref="ArgumentNullException" />
         /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<decimal> matrix, int rowIndex, decimal scalarValue)
+        public static void MultiplyColumnWithScalar<Tsource>(this Matrix<Tsource> matrix, int rowIndex, Tsource scalarValue)
+            where Tsource : struct, IEquatable<Tsource>
         {
             if (matrix == null)
                 throw new ArgumentNullException();
@@ -1580,174 +1050,11 @@ namespace MatrixOperations
             if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
                 throw new IndexOutOfRangeException();
 
-            if (scalarValue == 1.0M)
+            if ((dynamic)scalarValue == 1)
                 return;
 
             for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
+                matrix[rowIndex, columnIndex] *= (dynamic)scalarValue;
         }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<double> matrix, int rowIndex, double scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == 1.0d)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<float> matrix, int rowIndex, float scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == 1.0f)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<long> matrix, int rowIndex, long scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == 1)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<int> matrix, int rowIndex, int scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == 1)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<short> matrix, int rowIndex, short scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == 1)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<byte> matrix, int rowIndex, byte scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == 1)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<BigInteger> matrix, int rowIndex, BigInteger scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == 1)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar(this Matrix<Complex> matrix, int rowIndex, Complex scalarValue)
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if (scalarValue == Complex.One)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= scalarValue;
-        }
-
-        #endregion
     }
 }
