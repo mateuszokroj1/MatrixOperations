@@ -64,19 +64,28 @@ namespace MatrixOperations
 
         #region Rotating
 
-        public static Matrix<double> GenerateRotate2D(double angle, AngleMode angleMode = AngleMode.Radians, double centerX = 0, double centerY = 0)
-        => GenerateRotate2D(angle, angle);
-
-        public static Matrix<double> GenerateRotate2D(double angleX, double angleY, AngleMode angleMode = AngleMode.Radians, double centerX = 0, double centerY = 0)
+        public static Matrix<double> GenerateRotate2D(double angle, AngleMode angleMode = AngleMode.Radians, double centerX = default, double centerY = default)
         {
-            Matrix<double> matrix = null;
+            Matrix<double> matrix;
 
-            if(centerX == 0 && centerY == 0)
-                matrix = Matrix<>
-            Matrix<double> matrix = GenerateTranslate2D<double>();
+            if (centerX == 0 && centerY == 0)
+                matrix = new Matrix<double>(2,2);
+            else
+                matrix = GenerateTranslate2D(centerX,centerY);
+
+            Matrix<double> rotateTransformation = new Matrix<double>(2, 2);
+            rotateTransformation[0, 0] = Math.Cos(angle);
+            rotateTransformation[0, 1] = -Math.Sin(angle);
+            rotateTransformation[1, 0] = Math.Sin(angle);
+            rotateTransformation[1, 1] = rotateTransformation[0, 0];
+
+            if (centerX == 0 && centerY == 0)
+                return Matrix<double>.Multiply(matrix, rotateTransformation);
+            else
+                return Matrix<double>.Multiply(matrix, rotateTransformation, GenerateTranslate2D(-centerX, -centerY));
         }
 
-        public static Matrix<> GenerateRotate3D(double angleX, double angleY, double angleZ)
+        public static Matrix<double> GenerateRotate3D(double angleX, double angleY, double angleZ = 0, AngleMode angleMode = AngleMode.Radians, double centerX = 0, double centerY = 0, double centerZ = 0)
         {
 
         }

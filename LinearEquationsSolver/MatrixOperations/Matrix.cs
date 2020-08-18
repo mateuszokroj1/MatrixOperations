@@ -226,7 +226,11 @@ namespace MatrixOperations
 
         #region Methods
 
+        public Matrix<Toutput> ConvertTo<Toutput>()
+            where Toutput : struct, IEquatable<Toutput>
+        {
 
+        }
 
         public static bool CheckIsSizeEqual<TSource>(params Matrix<TSource>[] matrices) where TSource : struct
         => matrices
