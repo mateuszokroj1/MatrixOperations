@@ -1,41 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 
 
 //[assembly: InternalsVisibleTo("MatrixOperations.Tests")]
 
 namespace MatrixOperations
 {
-    public abstract class Matrix
-    {
-        public static Matrix operator*(Matrix a, Matrix b)
-        {
-            if (a == null || b == null)
-                throw new ArgumentNullException();
-
-            if(a.)
-        }
-
-        public static Matrix operator+(Matrix a, Matrix b)
-        {
-
-        }
-
-        public static Matrix operator-(Matrix a, Matrix b)
-        {
-
-        }
-    }
-
     /// <summary>
     /// Basic matrix class. Values are saved in 2-dimensional array
     /// </summary>
     /// <typeparam name="Tsource"></typeparam>
-    public class Matrix<Tsource> : Matrix, IEquatable<Matrix<Tsource>>, ICloneable
+    public class Matrix<Tsource> : IMatrix<Tsource>
         where Tsource : struct, IEquatable<Tsource>
     {
         #region Fields
@@ -72,7 +50,7 @@ namespace MatrixOperations
         }
 
         /// <summary>
-        /// Creates new matrix with referenced array
+        /// Creates new matrix from referenced array (not copy)
         /// </summary>
         /// <param name="array">Reference to array</param>
         /// <exception cref="ArgumentNullException"/>
@@ -138,12 +116,16 @@ namespace MatrixOperations
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.value.Length))
                 Parallel.For(0, this.value.Length, index =>
                 {
-
+                    this.value[index] = new Tsource[matrix.value[index].Length];
+                    for (int column = 0; column < this.value[index].Length; column++)
+                        this.value[index][column] = matrix.value[index][column];
                 });
             else
-                for()
+                for(int row = 0; row < this.value.Length; row++)
                 {
-
+                    this.value[row] = new Tsource[matrix.value[row].Length];
+                    for(int column = 0; column < this.value[row].Length; column++)
+                        this.value[row][column] = matrix.value[row][column];
                 }
         }
 
@@ -229,281 +211,200 @@ namespace MatrixOperations
         public Matrix<Toutput> ConvertTo<Toutput>()
             where Toutput : struct, IEquatable<Toutput>
         {
+            if (typeof(Tsource) == typeof(Toutput))
+                return new Matrix<Toutput>((dynamic)this);
 
+            Matrix<Toutput> newMatrix = new Matrix<Toutput>((uint)Rows.Count, (uint)Columns.Count);
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
+            {
+                Parallel.For(0, Rows.Count, index =>
+                {
+                    for (int column = 0; column < Columns.Count; column++)
+                        newMatrix.value[index][column] = (dynamic)this.value[index][column];
+                });
+            }
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(Columns.Count))
+            {
+                for (int row = 0; row < Rows.Count; row++)
+                    Parallel.For(0, Columns.Count, index =>
+                        newMatrix.value[row][index] = (dynamic)this.value[row][index]
+                    );
+            }
+            else
+                for (int row = 0; row < Rows.Count; row++)
+                    for (int column = 0; column < Columns.Count; column++)
+                        newMatrix.value[row][column] = (dynamic)this.value[row][column];
         }
 
-        public static bool CheckIsSizeEqual<TSource>(params Matrix<TSource>[] matrices) where TSource : struct
+        public static bool CheckIsSizeEqual(params Matrix<Tsource>[] matrices)
         => matrices
                 .GroupBy(item => item.Rows.Count, item => item.Columns.Count)
                 .Count() == 1;
 
-        public static Matrix<decimal> Multiply(params Matrix<decimal>[] matrices)
+        private static bool CheckMatricesHaveValidSizeForMultiplication(params Matrix<Tsource>[] matrices)
+        {
+            if (matrices == null || matrices.Where(matrix => matrix == null).Count() > 0)
+                throw new ArgumentNullException();
+
+            if (matrices.Length < 2)
+                return false;
+
+            for(int index = 0; index < matrices.Length-1; index++)
+            {
+                if (matrices[index].Columns.Count != matrices[index + 1].Rows.Count)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static Matrix<Tsource> Multiply(params Matrix<Tsource>[] matrices)
+        {
+            if (!CheckMatricesHaveValidSizeForMultiplication(matrices))
+                throw new InvalidOperationException("Matrices haven't valid sizes for multiplication.");
+
+
+        }
+
+        public static Matrix<Tsource> Multiply(Matrix<Tsource> a, Matrix<Tsource> b)
+        {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+
+            if (!CheckMatricesHaveValidSizeForMultiplication(a, b))
+                throw new InvalidOperationException("Matrices haven't valid sizes for multiplication.");
+
+            Matrix<Tsource> calculated = new Matrix<Tsource>((uint)a.Rows.Count, (uint)b.Columns.Count);
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Rows.Count))
+                Parallel.For(0, calculated.Rows.Count, row =>
+                {
+                    for (int column = 0; column < calculated.Columns.Count; column++)
+                    {
+                        Tsource value = default;
+
+                        for (int index = 0; index < a.Columns.Count; index++)
+                            value += (dynamic)a[row, index] * b[index, column];
+
+                        calculated[row, column] = value;
+                    }
+                });
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Columns.Count))
+                for (int row = 0; row < calculated.Rows.Count; row++)
+                    Parallel.For(0, calculated.Columns.Count, column =>
+                    {
+                        Tsource value = default;
+
+                        for (int index = 0; index < a.Columns.Count; index++)
+                            value += (dynamic)a[row, index] * b[index, column];
+
+                        calculated[row, column] = value;
+                    });
+            else
+                for (int row = 0; row < calculated.Rows.Count; row++)
+                    for (int column = 0; column < calculated.Columns.Count; column++)
+                    {
+                        Tsource value = default;
+
+                        for (int index = 0; index < a.Columns.Count; index++)
+                            value += (dynamic)a[row, index] * b[index, column];
+
+                        calculated[row, column] = value;
+                    }
+        }
+
+        public static Matrix<Tsource> Multiply(Tsource scalar, Matrix<Tsource> matrix)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException(nameof(matrix));
+
+            if (scalar.Equals(default))
+                return new Matrix<Tsource>((uint)matrix.Rows.Count, (uint)matrix.Columns.Count);
+
+            Matrix<Tsource> calculated = new Matrix<Tsource>((uint)matrix.Rows.Count, (uint)matrix.Columns.Count);
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Rows.Count))
+                Parallel.For(0, calculated.Rows.Count, row =>
+                {
+                    for (int column = 0; column < calculated.Columns.Count; column++)
+                        calculated[row, column] = (dynamic)scalar * matrix[row,column];
+                });
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Columns.Count))
+                for (int row = 0; row < calculated.Rows.Count; row++)
+                    Parallel.For(0, calculated.Columns.Count, column =>
+                    {
+                        calculated[row, column] = (dynamic)scalar * matrix[row, column];
+                    });
+            else
+                for (int row = 0; row < calculated.Rows.Count; row++)
+                    for (int column = 0; column < calculated.Columns.Count; column++)
+                    {
+                        calculated[row, column] = (dynamic)scalar * matrix[row, column];
+                    }
+        }
+
+        public static Matrix<Tsource> Multiply(Tsource scalar, params Matrix<Tsource>[] matrices)
         {
 
         }
 
-        public static Matrix<double> Multiply(params Matrix<double>[] matrices)
+        public static Vector<Tsource> Multiply(Vector<Tsource> vector, Matrix<Tsource> matrix)
         {
 
         }
 
-        public static Matrix<float> Multiply(params Matrix<float>[] matrices)
+        public static Vector<Tsource> Multiply(Matrix<Tsource> matrix, Vector<Tsource> vector)
         {
 
         }
 
-        public static Matrix<long> Multiply(params Matrix<long>[] matrices)
+        public static Matrix<Tsource> Sum(Matrix<Tsource> a, Matrix<Tsource> b)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
 
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+
+            if (a.Rows.Count != b.Rows.Count || a.Columns.Count != b.Columns.Count)
+                throw new InvalidOperationException("Matrices must have the same size.");
+
+            Matrix<Tsource> newMatrix = new Matrix<Tsource>((uint)a.Rows.Count, (uint)b.Columns.Count);
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(a.Rows.Count))
+            {
+
+            }
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(a.Columns.Count))
+            {
+
+            }
+            else
+                for (int row = 0; row < a.Rows.Count; row++)
+                    for (int column = 0; column < a.Columns.Count; column++)
+                        newMatrix[row, column] = (dynamic)a[row,column] + b[row,column];
+
+            return newMatrix;
         }
 
-        public static Matrix<int> Multiply(params Matrix<int>[] matrices)
+        public static Matrix<Tsource> Sum(params Matrix<Tsource>[] matrices)
         {
+            if (matrices.Length < 1)
+                throw new InvalidOperationException("No matrices to multiply");
 
-        }
+            if (!CheckIsSizeEqual(matrices))
+                throw new InvalidOperationException("Sizes are not equal.");
 
-        public static Matrix<short> Multiply(params Matrix<short>[] matrices)
-        {
+            var newmatrix = new Matrix<decimal>(matrices[0].value);
 
-        }
+            for (int i = 1; i < matrices.Length; i++)
+                newmatrix += matrices[i];
 
-        public static Matrix<byte> Multiply(params Matrix<byte>[] matrices)
-        {
-
-        }
-
-        public static Matrix<BigInteger> Multiply(params Matrix<BigInteger>[] matrices)
-        {
-
-        }
-
-        public static Matrix<Complex> Multiply(params Matrix<Complex>[] matrices)
-        {
-
-        }
-
-        public static Matrix<decimal> Multiply(decimal a, params Matrix<decimal>[] matrices)
-        {
-
-        }
-
-        public static Matrix<double> Multiply(double a, params Matrix<double>[] matrices)
-        {
-
-        }
-
-        public static Matrix<float> Multiply(float a, params Matrix<float>[] matrices)
-        {
-
-        }
-
-        public static Matrix<long> Multiply(long a, params Matrix<long>[] matrices)
-        {
-
-        }
-
-        public static Matrix<int> Multiply(int a, params Matrix<int>[] matrices)
-        {
-
-        }
-
-        public static Matrix<short> Multiply(short a, params Matrix<short>[] matrices)
-        {
-
-        }
-
-        public static Matrix<byte> Multiply(byte a, params Matrix<byte>[] matrices)
-        {
-
-        }
-
-        public static Matrix<BigInteger> Multiply(BigInteger a, params Matrix<BigInteger>[] matrices)
-        {
-
-        }
-
-        public static Matrix<Complex> Multiply(Complex a, params Matrix<Complex>[] matrices)
-        {
-
-        }
-
-        public static Matrix<decimal> Multiply(Matrix<decimal> matrix, decimal b)
-        {
-
-        }
-
-        public static Matrix<double> Multiply(Matrix<double> matrix, double b)
-        {
-
-        }
-
-        public static Matrix<float> Multiply(Matrix<float> matrix, float b)
-        {
-
-        }
-
-        public static Matrix<long> Multiply(Matrix<long> matrix, long b)
-        {
-
-        }
-
-        public static Matrix<int> Multiply(Matrix<int> matrix, int b)
-        {
-
-        }
-
-        public static Matrix<short> Multiply(Matrix<short> matrix, short b)
-        {
-
-        }
-
-        public static Matrix<byte> Multiply(Matrix<byte> matrix, byte b)
-        {
-
-        }
-
-        public static Matrix<BigInteger> Multiply(Matrix<BigInteger> matrix, BigInteger b)
-        {
-
-        }
-
-        public static Matrix<Complex> Multiply(Matrix<Complex> matrix, Complex b)
-        {
-
-        }
-
-        public static Matrix<decimal> Multiply(decimal a, Matrix<decimal> matrix)
-        {
-
-        }
-        public static Matrix<double> Multiply(double a, Matrix<double> matrix)
-        {
-
-        }
-
-        public static Matrix<float> Multiply(float a, Matrix<float> matrix)
-        {
-
-        }
-
-        public static Matrix<long> Multiply(long a, Matrix<long> matrix)
-        {
-
-        }
-
-        public static Matrix<int> Multiply(int a, Matrix<int> matrix)
-        {
-
-        }
-
-        public static Matrix<short> Multiply(short a, Matrix<short> matrix)
-        {
-
-        }
-
-        public static Matrix<byte> Multiply(byte a, Matrix<byte> matrix)
-        {
-
-        }
-
-        public static Matrix<BigInteger> Multiply(BigInteger a, Matrix<BigInteger> matrix)
-        {
-
-        }
-
-        public static Matrix<Complex> Multiply(Complex a, Matrix<Complex> matrix)
-        {
-
-        }
-
-        public static IEnumerable<decimal> Multiply(IEnumerable<decimal> vector, Matrix<decimal> matrix)
-        {
-
-        }
-
-        public static IEnumerable<double> Multiply(IEnumerable<double> vector, Matrix<double> matrix)
-        {
-
-        }
-
-        public static IEnumerable<float> Multiply(IEnumerable<float> vector, Matrix<float> matrix)
-        {
-
-        }
-
-        public static IEnumerable<long> Multiply(IEnumerable<long> vector, Matrix<long> matrix)
-        {
-
-        }
-
-        public static IEnumerable<int> Multiply(IEnumerable<int> vector, Matrix<int> matrix)
-        {
-
-        }
-
-        public static IEnumerable<short> Multiply(IEnumerable<short> vector, Matrix<short> matrix)
-        {
-
-        }
-
-        public static IEnumerable<byte> Multiply(IEnumerable<byte> vector, Matrix<byte> matrix)
-        {
-
-        }
-
-        public static IEnumerable<BigInteger> Multiply(IEnumerable<BigInteger> vector, Matrix<BigInteger> matrix)
-        {
-
-        }
-
-        public static IEnumerable<Complex> Multiply(IEnumerable<Complex> vector, Matrix<Complex> matrix)
-        {
-
-        }
-
-        public static IEnumerable<decimal> Multiply(Matrix<decimal> matrix, IEnumerable<decimal> vector)
-        {
-
-        }
-
-        public static IEnumerable<double> Multiply(Matrix<double> matrix, IEnumerable<double> vector)
-        {
-
-        }
-
-        public static IEnumerable<float> Multiply(Matrix<float> matrix, IEnumerable<float> vector)
-        {
-
-        }
-
-        public static IEnumerable<long> Multiply(Matrix<long> matrix, IEnumerable<long> vector)
-        {
-
-        }
-
-        public static IEnumerable<int> Multiply(Matrix<int> matrix, IEnumerable<int> vector)
-        {
-
-        }
-
-        public static IEnumerable<short> Multiply(Matrix<short> matrix, IEnumerable<short> vector)
-        {
-
-        }
-
-        public static IEnumerable<byte> Multiply(Matrix<byte> matrix, IEnumerable<byte> vector)
-        {
-
-        }
-
-        public static IEnumerable<BigInteger> Multiply(Matrix<BigInteger> matrix, IEnumerable<BigInteger> vector)
-        {
-
-        }
-
-        public static IEnumerable<Complex> Multiply(Matrix<Complex> matrix, IEnumerable<Complex> vector)
-        {
-
+            return newmatrix;
         }
 
         public static Matrix<decimal> Sum(params Matrix<decimal>[] matrices)
