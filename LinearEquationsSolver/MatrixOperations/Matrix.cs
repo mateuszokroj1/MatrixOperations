@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 
 
@@ -129,7 +128,6 @@ namespace MatrixOperations
                 }
         }
 
-
         #endregion
 
         #region Properties
@@ -157,6 +155,7 @@ namespace MatrixOperations
         #region Static
 
         #region Generators
+
         /// <summary>
         /// Create identity square <see cref="Matrix{Tsource}"/> <paramref name="count"/> X <paramref name="count"/> size
         /// </summary>
@@ -382,36 +381,49 @@ namespace MatrixOperations
             if (vector.Count() == matrix.Rows.Count)
             {
                 if (MatrixOperationsSettings.CheckIsParallelModeUseful(vector.Count()))
-                    Parallel.For();
+                    Parallel.For(0, vector.Count(), i =>
+                    {
+                        Tsource value = default;
+                        for (int j = 0; j < vector.Count(); j++)
+                            value += (dynamic)vector.ElementAt(j) * matrix[j, i];
+
+                        newVector[i] = value;
+                    });
                 else
-                    for()
+                    for(int i = 0; i < vector.Count(); i++)
+                    {
+                        Tsource value = default;
+                        for (int j = 0; j < vector.Count(); j++)
+                            value += (dynamic)vector.ElementAt(j) * matrix[j, i];
+
+                        newVector[i] = value;
+                    }
             }
             else if (vector.Count() == matrix.Columns.Count)
             {
+                if (MatrixOperationsSettings.CheckIsParallelModeUseful(vector.Count()))
+                    Parallel.For(0, vector.Count(), i =>
+                    {
+                        Tsource value = default;
+                        for (int j = 0; j < vector.Count(); j++)
+                            value += (dynamic)vector.ElementAt(j) * matrix[i, j];
 
+                        newVector[i] = value;
+                    });
+                else
+                    for (int i = 0; i < vector.Count(); i++)
+                    {
+                        Tsource value = default;
+                        for (int j = 0; j < vector.Count(); j++)
+                            value += (dynamic)vector.ElementAt(j) * matrix[i, j];
+
+                        newVector[i] = value;
+                    }
             }
             else
                 throw new InvalidOperationException("Invalid sizes for multiplication.");
-        }
 
-        public static IEnumerable<Tsource> Multiply(Matrix<Tsource> matrix, IEnumerable<Tsource> vector)
-        {
-            if (vector == null)
-                throw new ArgumentNullException(nameof(vector));
-
-            if (matrix == null)
-                throw new ArgumentNullException(nameof(vector));
-
-            if (vector.Count() == matrix.Rows.Count)
-            {
-
-            }
-            else if (vector.Count() == matrix.Columns.Count)
-            {
-
-            }
-            else
-                throw new InvalidOperationException("Invalid sizes for multiplication.");
+            return newVector;
         }
 
         public static Matrix<Tsource> Sum(params Matrix<Tsource>[] matrices)
@@ -478,10 +490,13 @@ namespace MatrixOperations
             if (!CheckIsSizeEqual(matrices))
                 throw new InvalidOperationException("Sizes are not equal.");
 
+            if (matrices.Length == 1)
+                return matrices[0];
+
+            Matrix<Tsource> calculated = new Matrix<Tsource>((uint)matrices[0].Rows.Count, (uint)matrices[0].Columns.Count);
+
 
         }
-
-        
 
         #endregion
 
