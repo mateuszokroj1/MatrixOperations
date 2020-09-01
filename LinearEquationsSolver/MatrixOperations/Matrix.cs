@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 
@@ -43,7 +44,7 @@ namespace MatrixOperations
             Tsource[][] newarr = new Tsource[array.Length][];
             array.CopyTo(newarr, 0);
 
-            value = newarr;
+            this.value = newarr;
             Rows = new RowCollection<Tsource>(this);
             Columns = new ColumnCollection<Tsource>(this);
         }
@@ -55,7 +56,7 @@ namespace MatrixOperations
         /// <exception cref="ArgumentNullException"/>
         public Matrix(ref Tsource[][] array)
         {
-            value = array ?? throw new ArgumentNullException();
+            this.value = array ?? throw new ArgumentNullException();
 
             Rows = new RowCollection<Tsource>(this);
             Columns = new ColumnCollection<Tsource>(this);
@@ -140,6 +141,7 @@ namespace MatrixOperations
         /// Gets or sets the selected value of matrix
         /// </summary>
         /// <returns>Value of selected element of matrix</returns>
+        /// <exception cref="IndexOutOfRangeException"/>
         public Tsource this[int rowIndex, int columnIndex]
         {
             get => this.value[rowIndex][columnIndex];
@@ -153,6 +155,28 @@ namespace MatrixOperations
         #endregion
 
         #region Static
+
+        public static bool CheckIsSizeEqual(params Matrix<Tsource>[] matrices)
+        => matrices
+                .GroupBy(item => item.Rows.Count, item => item.Columns.Count)
+                .Count() == 1;
+
+        private static bool CheckMatricesHaveValidSizeForMultiplication(params Matrix<Tsource>[] matrices)
+        {
+            if (matrices == null || matrices.Where(matrix => matrix == null).Count() > 0)
+                throw new ArgumentNullException();
+
+            if (matrices.Length < 2)
+                return false;
+
+            for(int index = 0; index < matrices.Length-1; index++)
+            {
+                if (matrices[index].Columns.Count != matrices[index + 1].Rows.Count)
+                    return false;
+            }
+
+            return true;
+        }
 
         #region Generators
 
@@ -189,7 +213,7 @@ namespace MatrixOperations
 
             Tsource[][] arr = new Tsource[vector.Count()][];
 
-            for(int i = 0; i < vector.Count(); i++)
+            for (int i = 0; i < vector.Count(); i++)
             {
                 arr[i] = new Tsource[vector.Count()];
 
@@ -201,61 +225,6 @@ namespace MatrixOperations
         }
 
         #endregion
-
-        #region Methods
-
-        public Matrix<Toutput> ConvertTo<Toutput>()
-            where Toutput : struct, IEquatable<Toutput>
-        {
-            if (typeof(Tsource) == typeof(Toutput))
-                return new Matrix<Toutput>((dynamic)this);
-
-            Matrix<Toutput> newMatrix = new Matrix<Toutput>((uint)Rows.Count, (uint)Columns.Count);
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
-            {
-                Parallel.For(0, Rows.Count, index =>
-                {
-                    for (int column = 0; column < Columns.Count; column++)
-                        newMatrix.value[index][column] = (dynamic)this.value[index][column];
-                });
-            }
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(Columns.Count))
-            {
-                for (int row = 0; row < Rows.Count; row++)
-                    Parallel.For(0, Columns.Count, index =>
-                        newMatrix.value[row][index] = (dynamic)this.value[row][index]
-                    );
-            }
-            else
-                for (int row = 0; row < Rows.Count; row++)
-                    for (int column = 0; column < Columns.Count; column++)
-                        newMatrix.value[row][column] = (dynamic)this.value[row][column];
-
-            return newMatrix;
-        }
-
-        public static bool CheckIsSizeEqual(params Matrix<Tsource>[] matrices)
-        => matrices
-                .GroupBy(item => item.Rows.Count, item => item.Columns.Count)
-                .Count() == 1;
-
-        private static bool CheckMatricesHaveValidSizeForMultiplication(params Matrix<Tsource>[] matrices)
-        {
-            if (matrices == null || matrices.Where(matrix => matrix == null).Count() > 0)
-                throw new ArgumentNullException();
-
-            if (matrices.Length < 2)
-                return false;
-
-            for(int index = 0; index < matrices.Length-1; index++)
-            {
-                if (matrices[index].Columns.Count != matrices[index + 1].Rows.Count)
-                    return false;
-            }
-
-            return true;
-        }
 
         #region Multiplication
 
@@ -365,6 +334,9 @@ namespace MatrixOperations
             return calculated;
         }
 
+        public static Matrix<Tsource> Multiply(Matrix<Tsource> matrix, Tsource scalar)
+        => Multiply(scalar, matrix);
+
         public static Matrix<Tsource> Multiply(Tsource scalar, params Matrix<Tsource>[] matrices)
         => Multiply(scalar, Multiply(matrices));
 
@@ -426,10 +398,14 @@ namespace MatrixOperations
             return newVector;
         }
 
+        #endregion
+
+        #region Sum
+
         public static Matrix<Tsource> Sum(params Matrix<Tsource>[] matrices)
         {
             if (matrices.Length < 1)
-                throw new InvalidOperationException("No matrices to multiply");
+                throw new InvalidOperationException("No matrices to sum.");
 
             if (!CheckIsSizeEqual(matrices))
                 throw new InvalidOperationException("Sizes are not equal.");
@@ -439,12 +415,14 @@ namespace MatrixOperations
             else if (matrices.Length == 1)
                 return matrices[0];
 
-            var newmatrix = new Matrix<Tsource>((uint)matrices[0].Rows.Count, (uint)matrices[0].Columns.Count);
+            uint rows = (uint)matrices[0].Rows.Count, columns = (uint)matrices[0].Columns.Count;
 
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrices[0].Rows.Count))
-                Parallel.For(0, matrices[0].Rows.Count, row =>
+            var newmatrix = new Matrix<Tsource>(rows, columns);
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(rows))
+                Parallel.For(0, (int)rows, row =>
                 {
-                    for(int column = 0; column < matrices[0].Columns.Count; column++)
+                    for(int column = 0; column < columns; column++)
                     {
                         Tsource value = default;
                         for (int matrixIndex = 0; matrixIndex < matrices.Length; matrixIndex++)
@@ -453,9 +431,9 @@ namespace MatrixOperations
                         newmatrix[row, column] = value;
                     }
                 });
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrices[0].Columns.Count))
-                for (int row = 0; row < matrices[0].Rows.Count; row++)
-                    Parallel.For(0, matrices[0].Columns.Count, column =>
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(columns))
+                for (int row = 0; row < rows; row++)
+                    Parallel.For(0, (int)columns, column =>
                     {
                         Tsource value = default;
                         for (int matrixIndex = 0; matrixIndex < matrices.Length; matrixIndex++)
@@ -464,8 +442,8 @@ namespace MatrixOperations
                         newmatrix[row, column] = value;
                     });
             else
-                for(int row = 0; row < matrices[0].Rows.Count; row++)
-                    for (int column = 0; column < matrices[0].Columns.Count; column++)
+                for(int row = 0; row < rows; row++)
+                    for (int column = 0; column < columns; column++)
                     {
                         Tsource value = default;
                         for (int matrixIndex = 0; matrixIndex < matrices.Length; matrixIndex++)
@@ -479,13 +457,15 @@ namespace MatrixOperations
 
         #endregion
 
+        #region Difference
+
         public static Matrix<Tsource> Difference(params Matrix<Tsource>[] matrices)
         {
             if (matrices == null)
                 throw new ArgumentNullException();
 
             if (matrices.Length < 1)
-                throw new InvalidOperationException("No matrices to multiply");
+                throw new InvalidOperationException("No matrices to difference.");
 
             if (!CheckIsSizeEqual(matrices))
                 throw new InvalidOperationException("Sizes are not equal.");
@@ -493,9 +473,34 @@ namespace MatrixOperations
             if (matrices.Length == 1)
                 return matrices[0];
 
-            Matrix<Tsource> calculated = new Matrix<Tsource>((uint)matrices[0].Rows.Count, (uint)matrices[0].Columns.Count);
+            uint rows = (uint)matrices[0].Rows.Count, columns = (uint)matrices[0].Columns.Count;
 
+            Matrix<Tsource> calculated = new Matrix<Tsource>(rows, columns);
 
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(rows))
+                Parallel.For(0, (int)rows, row =>
+                {
+
+                });
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(columns))
+                for (int row = 0; row < rows; row++)
+                    Parallel.For(0, (int)columns, column =>
+                    {
+
+                    });
+            else
+                for (int row = 0; row < rows; row++)
+                    for (int column = 0; column < columns; column++)
+                    {
+                        Tsource value = default;
+
+                        for (int i = 0; i < matrices.Length; i++)
+                            value -= (dynamic)matrices[i][row,column];
+
+                        calculated[row, column] = value;
+                    }
+
+            return calculated;
         }
 
         #endregion
@@ -503,6 +508,37 @@ namespace MatrixOperations
         #endregion
 
         #region Methods
+
+        public Matrix<Toutput> ConvertTo<Toutput>()
+            where Toutput : struct, IEquatable<Toutput>
+        {
+            if (typeof(Tsource) == typeof(Toutput))
+                return new Matrix<Toutput>((dynamic)this);
+
+            Matrix<Toutput> newMatrix = new Matrix<Toutput>((uint)Rows.Count, (uint)Columns.Count);
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
+            {
+                Parallel.For(0, Rows.Count, index =>
+                {
+                    for (int column = 0; column < Columns.Count; column++)
+                        newMatrix.value[index][column] = (dynamic)this.value[index][column];
+                });
+            }
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(Columns.Count))
+            {
+                for (int row = 0; row < Rows.Count; row++)
+                    Parallel.For(0, Columns.Count, index =>
+                        newMatrix.value[row][index] = (dynamic)this.value[row][index]
+                    );
+            }
+            else
+                for (int row = 0; row < Rows.Count; row++)
+                    for (int column = 0; column < Columns.Count; column++)
+                        newMatrix.value[row][column] = (dynamic)this.value[row][column];
+
+            return newMatrix;
+        }
 
         public bool Equals(Matrix<Tsource> other)
         {
@@ -515,17 +551,65 @@ namespace MatrixOperations
             bool retValue = true;
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
-            {
+                Parallel.For(0, Rows.Count, (row, state) =>
+                {
+                    for (int column = 0; column < Columns.Count; column++)
+                    {
+                        if (!this[row, column].Equals(other[row, column]))
+                        {
+                            retValue = false;
+                            state.Break();
+                            return;
+                        }
+                    }
+                });
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(Columns.Count))
+                for (int row = 0; row < Rows.Count; row++)
+                    Parallel.For(0, Columns.Count, (column, state) =>
+                    {
+                        if (!this[row, column].Equals(other[row, column]))
+                        {
+                            retValue = false;
+                            state.Break();
+                            return;
+                        }
+                    });
+            else
+                for (int row = 0; row < Rows.Count; row++)
+                    for (int column = 0; column < Columns.Count; column++)
+                        if (!this[row, column].Equals(other[row, column]))
+                            return false;
 
-            }
-            else if(MatrixOperationsSettings.CheckIsParallelModeUseful())
-
-            for (int row = 0; row < Rows.Count; row++)
-                for (int column = 0; column < Columns.Count; column++)
-                    if (!this.value[row][column].Equals(other[row, column]))
-                        return false;
-            return true;
+            return retValue;
         }
+
+        public override bool Equals(object obj)
+        => obj is Matrix<Tsource> obj2 ? Equals(obj2) : base.Equals(obj);
+
+        public override int GetHashCode()
+        => this.value.GetHashCode();
+
+        public override string ToString()
+        {
+            StringBuilder output = new StringBuilder();
+            if ((this.value?.Length ?? 0) == 0 || (this.value[0]?.Length ?? 0) == 0)
+                return string.Empty;
+
+            output.Append("{");
+
+            for (int row = 0; row < this.value.Length; row++)
+            {
+                foreach (var value in this.value[row])
+                    output.Append($" {value}");
+
+                if(row == this.value.Length+1)
+                    output.Append(" |");
+            }
+
+            output.Append(" }");
+
+            return output.ToString();
+         }
 
         /// <summary>
         /// Create submatrix from this matrix in selected bounds
@@ -571,15 +655,27 @@ namespace MatrixOperations
 
             Tsource[][] newarray = new Tsource[Rows.Count][];
 
-            for (int row = 0; row < Rows.Count; row++)
-            {
-                newarray[row] = new Tsource[Columns.Count - 1];
-                for (int column = 0; column < columnIndex; column++)
-                    newarray[row][column] = this[row,column];
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
+                Parallel.For(0, Rows.Count, row =>
+                {
+                    newarray[row] = new Tsource[Columns.Count - 1];
+                    for (int column = 0; column < columnIndex; column++)
+                        newarray[row][column] = this[row, column];
 
-                for (int column = (int)columnIndex; column < Columns.Count; column++)
-                    newarray[row][column] = this[row,column+1];
-            }
+                    for (int column = (int)columnIndex; column < Columns.Count; column++)
+                        newarray[row][column] = this[row, column + 1];
+                });
+            else
+                for (int row = 0; row < Rows.Count; row++)
+                {
+                    newarray[row] = new Tsource[Columns.Count - 1];
+                    for (int column = 0; column < columnIndex; column++)
+                        newarray[row][column] = this[row,column];
+
+                    for (int column = (int)columnIndex; column < Columns.Count; column++)
+                        newarray[row][column] = this[row,column+1];
+                }
+
             return new Matrix<Tsource>(newarray);
         }
 
@@ -600,6 +696,152 @@ namespace MatrixOperations
         }
 
         /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="IndexOutOfRangeException" />
+        public void MultiplyRowWithScalar(int rowIndex, Tsource scalarValue)
+        {
+            if (rowIndex < 0 || rowIndex >= Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if ((dynamic)scalarValue == 1)
+                return;
+
+            for (int columnIndex = 0; columnIndex < Columns.Count; columnIndex++)
+                this[rowIndex, columnIndex] *= (dynamic)scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="IndexOutOfRangeException"/>
+        public void MultiplyColumnWithScalar(int columnIndex, Tsource scalarValue)
+        {
+            if (columnIndex < 0 || columnIndex >= Columns.Count)
+                throw new IndexOutOfRangeException();
+
+            if ((dynamic)scalarValue == 1)
+                return;
+
+            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+                this[rowIndex, columnIndex] *= (dynamic)scalarValue;
+        }
+
+        /// <summary>
+        /// Multiplies all matrix cells with scalar value
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public void MultiplyWithScalar(Tsource scalarValue)
+        {
+            if ((dynamic)scalarValue == 1)
+                return;
+
+            if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
+                Parallel.For(0, Rows.Count, rowIndex => MultiplyRowWithScalar(rowIndex, scalarValue));
+            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(Columns.Count))
+            {
+                Parallel.For(0, Columns.Count, columnIndex =>
+                {
+                    for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+                        this[rowIndex, columnIndex] *= (dynamic)scalarValue;
+                });
+            }
+            else
+                for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+                    MultiplyRowWithScalar(rowIndex, scalarValue);
+        }
+
+        /// <summary>
+        /// Calculate determinant for square matrix or throw <see cref="InvalidOperationException"/> if <paramref name="matrix"/> is invalid.
+        /// </summary>
+        /// <returns>Determinant if exists</returns>
+        /// <exception cref="InvalidOperationException"/>
+        public Tsource CalculateDeterminant()
+        {
+            if (!IsSquare || Columns.Count < 1 || Rows.Count < 1)
+                throw new InvalidOperationException("Matrix must be a square");
+
+            if (Rows.Count == 1)
+                return this[0, 0];
+
+            if (Rows.Count == 2)
+                return (dynamic)this[0, 0] * this[1, 1] - (dynamic)this[0, 1] * this[1, 0];
+
+            if (Rows.Count == 3)
+                return
+                    (dynamic)this[0, 0] * this[1, 1] * this[2, 2]
+                  + (dynamic)this[1, 0] * this[2, 1] * this[0, 2]
+                  + (dynamic)this[2, 0] * this[0, 1] * this[1, 2]
+
+                  - (dynamic)this[2, 0] * this[1, 1] * this[0, 2]
+                  - (dynamic)this[0, 0] * this[2, 1] * this[1, 2]
+                  - (dynamic)this[1, 0] * this[0, 1] * this[2, 2];
+            else
+            {
+                Tsource sum = default;
+
+                for (int column = 0; column < Columns.Count; column++)
+                    sum += (dynamic)this[0, column]
+                        * Math.Pow(-1, 2 + column)
+                        * SkipRow(0).SkipColumn((uint)column).CalculateDeterminant();
+
+                return sum;
+            }
+        }
+
+        /// <summary>
+        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns>Inverted matrix</returns>
+        public Matrix<Tsource> Inversion()
+            => (dynamic)Transpose() * ((dynamic)1 / CalculateDeterminant());
+
+        /// <summary>
+        /// Checks if the given matrix is diagonal.
+        /// In a diagonal matrix, non-diagonal values must have a default value.
+        /// </summary>
+        public bool CheckIsDiagonal()
+        {
+            if (Rows.Count == 0 || !IsSquare)
+                return false;
+
+            for (int row = 0; row < Rows.Count; row++)
+                for (int column = 0; column < Columns.Count; column++)
+                    if (row != column && !this[row,column].Equals(default))
+                        return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Get vector array if matrix have only one row or one column or is diagonal
+        /// </summary>
+        /// <returns>Vector array</returns>
+        public IEnumerable<Tsource> AsVector()
+        {
+            if (Rows.Count == 0)
+                return new Tsource[0];
+
+            if (!IsVector || !CheckIsDiagonal())
+                throw new InvalidOperationException("Matrix is not vector or diagonal");
+
+            if (Rows.Count == 1)
+                return Rows[0];
+            else if (Columns.Count == 1)
+                return Columns[0];
+            else
+            {
+                Tsource[] ret = new Tsource[Rows.Count];
+
+                for (int i = 0; i < Rows.Count; i++)
+                    ret[i] = this[i,i];
+
+                return ret;
+            }
+        }
+
+        /// <summary>
         /// Returns transposed matrix by replace row index with column index
         /// </summary>
         /// <returns></returns>
@@ -616,160 +858,8 @@ namespace MatrixOperations
             return new Matrix<Tsource>(newarray);
         }
 
-        public object Clone() => new Matrix<Tsource>(value);
+        public object Clone() => new Matrix<Tsource>(this.value);
 
         #endregion
-    }
-
-    public enum AngleMode { Radians = 0, Degrees = 1 }
-
-    /// <summary>
-    /// Extension methods for <see cref="Matrix{Tsource}"/> class in selected Tsource types
-    /// </summary>
-    public static class ExtensionMethods
-    {
-
-        /// <summary>
-        /// Calculate determinant for square matrix or throw <see cref="InvalidOperationException"/> if <paramref name="matrix"/> is invalid.
-        /// </summary>
-        /// <returns>Determinant if exists</returns>
-        /// <exception cref="InvalidOperationException"/>
-        public static Tsource CalculateDeterminant<Tsource>(this Matrix<Tsource> matrix)
-            where Tsource : struct, IEquatable<Tsource>
-        {
-            if (!matrix.IsSquare || matrix.Columns.Count < 1 || matrix.Rows.Count < 1)
-                throw new InvalidOperationException("Matrix must be a square");
-
-            if (matrix.Rows.Count == 1)
-                return matrix[0, 0];
-
-            if (matrix.Rows.Count == 2)
-                return (dynamic)matrix[0, 0] * matrix[1, 1] - (dynamic)matrix[0, 1] * matrix[1, 0];
-
-            if (matrix.Rows.Count == 3)
-                return
-                    (dynamic)matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                  + (dynamic)matrix[1, 0] * matrix[2, 1] * matrix[0, 2]
-                  + (dynamic)matrix[2, 0] * matrix[0, 1] * matrix[1, 2]
-
-                  - (dynamic)matrix[2, 0] * matrix[1, 1] * matrix[0, 2]
-                  - (dynamic)matrix[0, 0] * matrix[2, 1] * matrix[1, 2]
-                  - (dynamic)matrix[1, 0] * matrix[0, 1] * matrix[2, 2];
-            else
-            {
-                var sum = (dynamic)matrix[0, 0] - matrix[0, 0];
-
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    sum += (dynamic)matrix[0, column]
-                        * Math.Pow(-1, 2 + column)
-                        * (matrix.SkipRow(0).SkipColumn((uint)column).CalculateDeterminant());
-
-                return sum;
-            }
-        }
-
-        /// <summary>
-        /// Calculate Matrix^-1 = Transpose(Matrix) / Determinant(Matrix)
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns>Inverted matrix</returns>
-        public static Matrix<Tsource> Inversion<Tsource>(this Matrix<Tsource> matrix)
-            where Tsource : struct, IEquatable<Tsource>
-            => (dynamic)matrix.Transpose() * ((dynamic)1 / matrix.CalculateDeterminant());
-
-        /// <summary>
-        /// Checks if the given matrix is diagonal.
-        /// In a diagonal matrix, non-diagonal values must have a default value.
-        /// </summary>
-        public static bool CheckIsDiagonal<Tsource>(this Matrix<Tsource> matrix)
-            where Tsource : struct, IEquatable<Tsource>
-        {
-            if (matrix.Rows.Count == 0 || !matrix.IsSquare)
-                return false;
-
-            for (int row = 0; row < matrix.Rows.Count; row++)
-                for (int column = 0; column < matrix.Columns.Count; column++)
-                    if (row != column && !matrix.value[row][column].Equals(default))
-                        return false;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Get vector array if matrix have only one row or one column or is diagonal
-        /// </summary>
-        /// <returns>Vector array</returns>
-        public static IEnumerable<Tsource> AsVector<Tsource>(this Matrix<Tsource> matrix)
-            where Tsource : struct, IEquatable<Tsource>
-        {
-            if (matrix.Rows.Count == 0)
-                return new Tsource[0];
-
-            if (!matrix.IsVector || !matrix.CheckIsDiagonal())
-                throw new InvalidOperationException("Matrix is not vector or diagonal");
-
-            if (matrix.Rows.Count == 1)
-                return matrix.Rows[0];
-            else if (matrix.Columns.Count == 1)
-                return matrix.Columns[0];
-            else
-            {
-                Tsource[] ret = new Tsource[matrix.Rows.Count];
-
-                for (int i = 0; i < matrix.Rows.Count; i++)
-                    ret[i] = matrix.value[i][i];
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        /// Multiplies all matrix cells with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public static void MultiplyWithScalar<Tsource>(this Matrix<Tsource> matrix, Tsource scalarValue)
-            where Tsource : struct, IEquatable<Tsource>
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if ((dynamic)scalarValue == 1)
-                return;
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Rows.Count))
-                Parallel.For(0, matrix.Rows.Count, rowIndex => MultiplyColumnWithScalar(matrix, rowIndex, scalarValue));
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(matrix.Columns.Count))
-            {
-                Parallel.For(0, matrix.Columns.Count, columnIndex =>
-                {
-                    for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                        matrix[rowIndex, columnIndex] *= (dynamic)scalarValue;
-                });
-            }
-            else
-                for (int rowIndex = 0; rowIndex < matrix.Rows.Count; rowIndex++)
-                    MultiplyColumnWithScalar(matrix, rowIndex, scalarValue);
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="ArgumentNullException" />
-        /// <exception cref="IndexOutOfRangeException" />
-        public static void MultiplyColumnWithScalar<Tsource>(this Matrix<Tsource> matrix, int rowIndex, Tsource scalarValue)
-            where Tsource : struct, IEquatable<Tsource>
-        {
-            if (matrix == null)
-                throw new ArgumentNullException();
-
-            if (rowIndex < 0 || rowIndex >= matrix.Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if ((dynamic)scalarValue == 1)
-                return;
-
-            for (int columnIndex = 0; columnIndex < matrix.Columns.Count; columnIndex++)
-                matrix[rowIndex, columnIndex] *= (dynamic)scalarValue;
-        }
     }
 }
