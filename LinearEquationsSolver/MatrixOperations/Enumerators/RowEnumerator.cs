@@ -44,10 +44,10 @@ namespace MatrixOperations
 
         public bool MoveNext()
         {
+            this.index++;
             if (this.index >= this.matrix.Rows.Count)
                 return false;
 
-            this.index++;
             return true;
         }
 
