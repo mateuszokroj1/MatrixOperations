@@ -19,7 +19,7 @@ namespace MatrixOperations
     {
         #region Fields
 
-        internal Tsource[][] value;
+        internal Tsource[][] value = new Tsource[0][];
 
         #endregion
 
@@ -30,7 +30,8 @@ namespace MatrixOperations
         /// </summary>
         public Matrix()
         {
-            this.value = new Tsource[0][];
+            Rows = new RowCollection<Tsource>(this);
+            Columns = new ColumnCollection<Tsource>(this);
         }
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="array">Values to copy</param>
         /// <exception cref="ArgumentNullException" />
-        public Matrix(Tsource[][] array)
+        public Matrix(Tsource[][] array) : this()
         {
             if (array == null)
                 throw new ArgumentNullException();
@@ -46,8 +47,6 @@ namespace MatrixOperations
             array.CopyTo(newarr, 0);
 
             this.value = newarr;
-            Rows = new RowCollection<Tsource>(this);
-            Columns = new ColumnCollection<Tsource>(this);
         }
 
         /// <summary>
@@ -55,12 +54,9 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="array">Reference to array</param>
         /// <exception cref="ArgumentNullException"/>
-        public Matrix(ref Tsource[][] array)
+        public Matrix(ref Tsource[][] array) : this()
         {
             this.value = array ?? throw new ArgumentNullException();
-
-            Rows = new RowCollection<Tsource>(this);
-            Columns = new ColumnCollection<Tsource>(this);
         }
 
         /// <summary>
@@ -68,7 +64,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
-        public Matrix(uint rows, uint columns)
+        public Matrix(uint rows, uint columns) : this()
         {
             Tsource[][] arr;
             if (rows == 0 || columns == 0)
@@ -92,7 +88,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="matrix"></param>
         /// <exception cref="ArgumentNullException" />
-        public Matrix(Matrix<Tsource> matrix)
+        public Matrix(Matrix<Tsource> matrix) : this()
         {
             if (matrix == null)
                 throw new ArgumentNullException();
