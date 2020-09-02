@@ -120,22 +120,17 @@ namespace MatrixOperations.Readers
         {
             string[][] values = null;
 
-            lock (this.rowsSeparator)
-            {
-                lock(this.columnsSeparator)
-                {
-                    lock(this.content)
-                    {
-                        values = this.content
-                            .Split(new string[] { RowsSeparator }, StringSplitOptions.None)
-                            .Select(row => row.Split(new string[] { columnsSeparator }, StringSplitOptions.None))
-                            .ToArray();
-                    }
-                }
-            }
+            string rowsSeparator = RowsSeparator, columnSeparator = ColumnsSeparator;
+
+            values = this.content
+                    .Split(new string[] { rowsSeparator }, StringSplitOptions.None)
+                    .Select(row => row.Split(new string[] { columnSeparator }, StringSplitOptions.None))
+                    .ToArray();
 
             Tsource[][] parsedValues = values.Select(row => row.Select(cell => (Tsource)Convert.ChangeType(cell, typeof(Tsource))).ToArray()
             ).ToArray();
+
+            return new Matrix<Tsource>(ref parsedValues);
         }
 
         #endregion
