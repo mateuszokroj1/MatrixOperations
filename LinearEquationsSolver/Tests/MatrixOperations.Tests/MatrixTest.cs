@@ -69,7 +69,7 @@ namespace MatrixOperations.Tests
             Assert.NotNull(matrix.Rows);
             Assert.Equal(2, matrix.Rows.Count);
             Assert.NotNull(matrix.Columns);
-            Assert.Equal(4, matrix.Columns.Count);
+            Assert.Equal(3, matrix.Columns.Count);
         }
 
         [Fact]
