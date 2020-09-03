@@ -130,7 +130,7 @@ namespace MatrixOperations
 
         #region Properties
 
-        public bool IsSquare => Rows.Count == Columns.Count;
+        public bool IsSquare => Rows.Count == Columns.Count && Rows.Count > 0;
 
         public bool IsVector => Rows.Count == 1 || Columns.Count == 1;
 
