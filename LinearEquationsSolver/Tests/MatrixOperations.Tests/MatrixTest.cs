@@ -15,7 +15,6 @@ namespace MatrixOperations.Tests
             var matrix = new Matrix<bool>();
             Assert.NotNull(matrix);
             Assert.NotNull(matrix.value);
-            Assert.Empty(matrix.value);
 
             Assert.NotNull(matrix.Rows);
             Assert.Empty(matrix.Rows);
