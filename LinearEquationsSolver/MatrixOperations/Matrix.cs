@@ -63,7 +63,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
-        public Matrix(uint rows, uint columns) : this()
+        public Matrix(int rows, int columns) : this()
         {
             Tsource[][] arr;
             if (rows == 0 || columns == 0)
@@ -257,7 +257,7 @@ namespace MatrixOperations
             if (!CheckMatricesHaveValidSizeForMultiplication(a, b))
                 throw new InvalidOperationException("Matrices haven't valid sizes for multiplication.");
 
-            Matrix<Tsource> calculated = new Matrix<Tsource>((uint)a.Rows.Count, (uint)b.Columns.Count);
+            var calculated = new Matrix<Tsource>(a.Rows.Count, b.Columns.Count);
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Rows.Count))
                 Parallel.For(0, calculated.Rows.Count, row =>
@@ -304,9 +304,9 @@ namespace MatrixOperations
                 throw new ArgumentNullException(nameof(matrix));
 
             if (scalar.Equals(default))
-                return new Matrix<Tsource>((uint)matrix.Rows.Count, (uint)matrix.Columns.Count);
+                return new Matrix<Tsource>(matrix.Rows.Count, matrix.Columns.Count);
 
-            Matrix<Tsource> calculated = new Matrix<Tsource>((uint)matrix.Rows.Count, (uint)matrix.Columns.Count);
+            var calculated = new Matrix<Tsource>(matrix.Rows.Count, matrix.Columns.Count);
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Rows.Count))
                 Parallel.For(0, calculated.Rows.Count, row =>
@@ -411,7 +411,7 @@ namespace MatrixOperations
             else if (matrices.Length == 1)
                 return matrices[0];
 
-            uint rows = (uint)matrices[0].Rows.Count, columns = (uint)matrices[0].Columns.Count;
+            int rows = matrices[0].Rows.Count, columns = matrices[0].Columns.Count;
 
             var newmatrix = new Matrix<Tsource>(rows, columns);
 
@@ -469,9 +469,9 @@ namespace MatrixOperations
             if (matrices.Length == 1)
                 return matrices[0];
 
-            uint rows = (uint)matrices[0].Rows.Count, columns = (uint)matrices[0].Columns.Count;
+            int rows = matrices[0].Rows.Count, columns = matrices[0].Columns.Count;
 
-            Matrix<Tsource> calculated = new Matrix<Tsource>(rows, columns);
+            var calculated = new Matrix<Tsource>(rows, columns);
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(rows))
                 Parallel.For(0, (int)rows, row =>
@@ -511,7 +511,7 @@ namespace MatrixOperations
             if (typeof(Tsource) == typeof(Toutput))
                 return new Matrix<Toutput>((dynamic)this);
 
-            Matrix<Toutput> newMatrix = new Matrix<Toutput>((uint)Rows.Count, (uint)Columns.Count);
+            var newMatrix = new Matrix<Toutput>(Rows.Count, Columns.Count);
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
             {

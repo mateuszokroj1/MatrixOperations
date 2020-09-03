@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MatrixOperations
 {
-    public class ColumnCollection<Tsource> : IList<Tsource[]> where Tsource : struct, IEquatable<Tsource>
+    public class ColumnCollection<Tsource> : IList<Tsource[]>
+        where Tsource : struct, IEquatable<Tsource>
     {
         #region Fields
 
-        private Matrix<Tsource> matrix;
+        private readonly Matrix<Tsource> matrix;
 
         #endregion
 
@@ -21,7 +23,9 @@ namespace MatrixOperations
 
         #region Properties
 
-        public int Count => this.matrix.value.Length > 0 ? this.matrix.value[0].Length : 0;
+        public int Count => (this.matrix.value?.GroupBy(row => row.Length).Max(group => group.Key)) ?? 0;
+
+        public long LongCount => (this.matrix.value?.GroupBy(row => row.LongLength).Max(group => group.Key)) ?? 0;
 
         public bool IsReadOnly => false;
 
@@ -67,7 +71,7 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (item.Length != matrix.Rows.Count)
+            if (item.Length != this.matrix.Rows.Count)
                 return -1;
 
             int column = 0;
