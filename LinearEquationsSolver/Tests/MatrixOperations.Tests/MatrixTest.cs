@@ -85,119 +85,118 @@ namespace MatrixOperations.Tests
         [InlineData(8, 6)]
         [InlineData(10, 2)]
         [InlineData(40, 1)]
-        [InlineData(int.MaxValue, int.MaxValue)]
-        public void Constructor4_WhenValuesAreValid_ShouldCreateArrayWithDefaultValues(uint rows, uint columns)
+        public void Constructor4_WhenValuesAreValid_ShouldCreateArrayWithDefaultValues(int rows, int columns)
         {
             var matrix1 = new Matrix<bool>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix1.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix1.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix1.value?.Length ?? 0);
+            Assert.Equal(columns, matrix1.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix1.Rows);
-            Assert.Equal(rows, (uint)matrix1.Rows.Count);
+            Assert.Equal(rows, matrix1.Rows.Count);
             Assert.NotNull(matrix1.Columns);
-            Assert.Equal(columns, (uint)matrix1.Columns.Count);
+            Assert.Equal(columns, matrix1.Columns.Count);
 
             var matrix2 = new Matrix<sbyte>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix2.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix2.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix2.value?.Length ?? 0);
+            Assert.Equal(columns, matrix2.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix2.Rows);
-            Assert.Equal(rows, (uint)matrix2.Rows.Count);
+            Assert.Equal(rows, matrix2.Rows.Count);
             Assert.NotNull(matrix2.Columns);
-            Assert.Equal(columns, (uint)matrix2.Columns.Count);
+            Assert.Equal(columns, matrix2.Columns.Count);
 
             var matrix3 = new Matrix<short>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix3.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix3.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix3.value?.Length ?? 0);
+            Assert.Equal(columns, matrix3.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix3.Rows);
-            Assert.Equal(rows, (uint)matrix3.Rows.Count);
+            Assert.Equal(rows, matrix3.Rows.Count);
             Assert.NotNull(matrix3.Columns);
-            Assert.Equal(columns, (uint)matrix3.Columns.Count);
+            Assert.Equal(columns, matrix3.Columns.Count);
 
             var matrix4 = new Matrix<ushort>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix4.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix4.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix4.value?.Length ?? 0);
+            Assert.Equal(columns, matrix4.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix4.Rows);
-            Assert.Equal(rows, (uint)matrix4.Rows.Count);
+            Assert.Equal(rows, matrix4.Rows.Count);
             Assert.NotNull(matrix4.Columns);
-            Assert.Equal(columns, (uint)matrix4.Columns.Count);
+            Assert.Equal(columns, matrix4.Columns.Count);
 
             var matrix5 = new Matrix<int>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix5.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix5.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix5.value?.Length ?? 0);
+            Assert.Equal(columns, matrix5.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix5.Rows);
-            Assert.Equal(rows, (uint)matrix5.Rows.Count);
+            Assert.Equal(rows, matrix5.Rows.Count);
             Assert.NotNull(matrix5.Columns);
-            Assert.Equal(columns, (uint)matrix5.Columns.Count);
+            Assert.Equal(columns, matrix5.Columns.Count);
 
             var matrix6 = new Matrix<uint>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix6.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix6.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix6.value?.Length ?? 0);
+            Assert.Equal(columns, matrix6.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix6.Rows);
-            Assert.Equal(rows, (uint)matrix6.Rows.Count);
+            Assert.Equal(rows, matrix6.Rows.Count);
             Assert.NotNull(matrix6.Columns);
-            Assert.Equal(columns, (uint)matrix6.Columns.Count);
+            Assert.Equal(columns, matrix6.Columns.Count);
 
             var matrix7 = new Matrix<long>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix7.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix7.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix7.value?.Length ?? 0);
+            Assert.Equal(columns, matrix7.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix7.Rows);
-            Assert.Equal(rows, (uint)matrix7.Rows.Count);
+            Assert.Equal(rows, matrix7.Rows.Count);
             Assert.NotNull(matrix7.Columns);
-            Assert.Equal(columns, (uint)matrix7.Columns.Count);
+            Assert.Equal(columns, matrix7.Columns.Count);
 
             var matrix8 = new Matrix<ulong>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix8.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix8.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix8.value?.Length ?? 0);
+            Assert.Equal(columns, matrix8.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix8.Rows);
-            Assert.Equal(rows, (uint)matrix8.Rows.Count);
+            Assert.Equal(rows, matrix8.Rows.Count);
             Assert.NotNull(matrix8.Columns);
-            Assert.Equal(columns, (uint)matrix8.Columns.Count);
+            Assert.Equal(columns, matrix8.Columns.Count);
 
             var matrix9 = new Matrix<float>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix9.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix9.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix9.value?.Length ?? 0);
+            Assert.Equal(columns, matrix9.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix9.Rows);
-            Assert.Equal(rows, (uint)matrix9.Rows.Count);
+            Assert.Equal(rows, matrix9.Rows.Count);
             Assert.NotNull(matrix9.Columns);
-            Assert.Equal(columns, (uint)matrix9.Columns.Count);
+            Assert.Equal(columns, matrix9.Columns.Count);
 
             var matrix10 = new Matrix<double>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix10.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix10.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix10.value?.Length ?? 0);
+            Assert.Equal(columns, matrix10.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix10.Rows);
-            Assert.Equal(rows, (uint)matrix10.Rows.Count);
+            Assert.Equal(rows, matrix10.Rows.Count);
             Assert.NotNull(matrix10.Columns);
-            Assert.Equal(columns, (uint)matrix10.Columns.Count);
+            Assert.Equal(columns, matrix10.Columns.Count);
 
             var matrix11 = new Matrix<decimal>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix11.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix11.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix11.value?.Length ?? 0);
+            Assert.Equal(columns, matrix11.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix11.Rows);
-            Assert.Equal(rows, (uint)matrix11.Rows.Count);
+            Assert.Equal(rows, matrix11.Rows.Count);
             Assert.NotNull(matrix11.Columns);
-            Assert.Equal(columns, (uint)matrix11.Columns.Count);
+            Assert.Equal(columns, matrix11.Columns.Count);
 
             var matrix12 = new Matrix<BigInteger>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix12.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix12.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix12.value?.Length ?? 0);
+            Assert.Equal(columns, matrix12.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix12.Rows);
-            Assert.Equal(rows, (uint)matrix12.Rows.Count);
+            Assert.Equal(rows, matrix12.Rows.Count);
             Assert.NotNull(matrix12.Columns);
-            Assert.Equal(columns, (uint)matrix12.Columns.Count);
+            Assert.Equal(columns, matrix12.Columns.Count);
 
             var matrix13 = new Matrix<Complex>(rows, columns);
-            Assert.Equal(rows, (uint)(matrix13.value?.Length ?? 0));
-            Assert.Equal((int)columns, matrix13.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
+            Assert.Equal(rows, matrix13.value?.Length ?? 0);
+            Assert.Equal(columns, matrix13.value.Where(row => row != null).GroupBy(row => row.Length).First().Key);
             Assert.NotNull(matrix13.Rows);
-            Assert.Equal(rows, (uint)matrix13.Rows.Count);
+            Assert.Equal(rows, matrix13.Rows.Count);
             Assert.NotNull(matrix13.Columns);
-            Assert.Equal(columns, (uint)matrix13.Columns.Count);
+            Assert.Equal(columns, matrix13.Columns.Count);
         }
 
         [Theory]
         [InlineData(0, 20)]
         [InlineData(100, 0)]
         [InlineData(0, 0)]
-        public void Constructor4_WhenParameterEquals0_ShouldCreateEmptyArray(uint rows, uint columns)
+        public void Constructor4_WhenParameterEquals0_ShouldCreateEmptyArray(int rows, int columns)
         {
             var matrix = new Matrix<bool>(rows, columns);
             Assert.NotNull(matrix?.value);
