@@ -252,5 +252,45 @@ namespace MatrixOperations.Tests
         }
 
         #endregion
+
+        #region Properties
+
+        [Fact]
+        public void IsSquare_ShouldReturnTrue()
+        {
+            var matrix1 = new Matrix<bool>(10,10);
+            Assert.True(matrix1.IsSquare);
+
+            var matrix2 = new Matrix<int>(new int[][]
+            {
+                new int[] { 1, -100 },
+                new int[] { 0, 200 }
+            });
+            Assert.True(matrix2.IsSquare);
+        }
+
+        [Fact]
+        public void IsSquare_ShouldReturnFalse()
+        {
+            var matrix1 = new Matrix<float>(100,200);
+            Assert.False(matrix1.IsSquare);
+
+            var matrix2 = new Matrix<double>(new double[][]
+            {
+                new double[] { -1200, 0.234 }
+            });
+            Assert.False(matrix2.IsSquare);
+
+            var matrix3 = new Matrix<bool>();
+            Assert.False(matrix3.IsSquare);
+        }
+
+        [Fact]
+        public void IsVector_ShouldReturnTrue()
+        {
+            var 
+        }
+
+        #endregion
     }
 }
