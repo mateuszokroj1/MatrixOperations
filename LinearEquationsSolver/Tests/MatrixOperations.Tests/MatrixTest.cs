@@ -288,7 +288,42 @@ namespace MatrixOperations.Tests
         [Fact]
         public void IsVector_ShouldReturnTrue()
         {
-            var 
+            var matrix1 = new Matrix<int>(new int[][]
+            {
+                new int[] { 1 },
+                new int[] { 2 },
+                new int[] { 4 }
+            });
+            Assert.True(matrix1.IsVector);
+
+            var matrix2 = new Matrix<float>(new float[][] { new float[] { 2.214f, -.121200f, 0.12231f, float.MaxValue, float.Epsilon } });
+            Assert.True(matrix2.IsVector);
+        }
+
+        [Fact]
+        public void IsVector_ShouldReturnFalse()
+        {
+            var matrix1 = new Matrix<bool>(2,2);
+            Assert.False(matrix1.IsVector);
+
+            var matrix2 = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 20, -123200 },
+                new int [] { -100, 20000, 1000 }
+            });
+            Assert.False(matrix2.IsVector);
+        }
+
+        [Fact]
+        public void Rows_ShouldReturnCollection()
+        {
+            var matrix1 = new Matrix<int>(20,20);
+            Assert.IsType<RowCollection<int>>(matrix1.Rows);
+            Assert.Equal(20, matrix1.Rows.Count);
+
+            var matrix2 = new Matrix<float>();
+            Assert.IsType<RowCollection<float>>(matrix2.Rows);
+            Assert.Empty(matrix2.Rows);
         }
 
         #endregion
