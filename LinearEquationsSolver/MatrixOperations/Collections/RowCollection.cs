@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace MatrixOperations
 {
-    public class RowCollection<Tsource> : IList<Tsource[]>
+    public class RowCollection<Tsource> : IRowCollection<Tsource>
         where Tsource : struct, IEquatable<Tsource>
     {
         #region Fields
 
-        private Matrix<Tsource> matrix;
+        private readonly Matrix<Tsource> matrix;
 
         #endregion
 
@@ -46,6 +46,8 @@ namespace MatrixOperations
         }
 
         public int Count => this.matrix.value.Length;
+
+        public long LongCount => this.matrix.value.LongLength;
 
         public bool IsReadOnly => false;
         #endregion
