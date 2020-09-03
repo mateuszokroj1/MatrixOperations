@@ -23,9 +23,9 @@ namespace MatrixOperations
 
         #region Properties
 
-        public int Count => (this.matrix.value?.GroupBy(row => row.Length).Select(group => group.Key).First()) ?? 0;
+        public int Count => (this.matrix.value?.GroupBy(row => row.Length).Select(group => group.Key).FirstOrDefault()) ?? 0;
 
-        public long LongCount => (this.matrix.value?.GroupBy(row => row.LongLength).Select(group => group.Key).First()) ?? 0;
+        public long LongCount => (this.matrix.value?.GroupBy(row => row.LongLength).Select(group => group.Key).FirstOrDefault()) ?? 0;
 
         public bool IsReadOnly => false;
 
