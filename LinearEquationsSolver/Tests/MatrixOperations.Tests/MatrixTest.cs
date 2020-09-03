@@ -85,6 +85,7 @@ namespace MatrixOperations.Tests
         [InlineData(8, 6)]
         [InlineData(10, 2)]
         [InlineData(40, 1)]
+        [InlineData(int.MaxValue, int.MaxValue)]
         public void Constructor4_WhenValuesAreValid_ShouldCreateArrayWithDefaultValues(uint rows, uint columns)
         {
             var matrix1 = new Matrix<bool>(rows, columns);
