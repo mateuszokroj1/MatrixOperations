@@ -239,7 +239,7 @@ namespace MatrixOperations
             if (matrices.Length == 1)
                 return matrices[0];
 
-            Matrix<Tsource> calculated = new Matrix<Tsource>(matrices[0]);
+            var calculated = new Matrix<Tsource>(matrices[0]);
 
             for(int i = 0; i < matrices.Length-1; i++)
                 calculated = Multiply(calculated, matrices[1]);
@@ -475,15 +475,28 @@ namespace MatrixOperations
             var calculated = new Matrix<Tsource>(rows, columns);
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(rows))
-                Parallel.For(0, (int)rows, row =>
+                Parallel.For(0, rows, row =>
                 {
+                    for (int column = 0; column < columns; column++)
+                    {
+                        Tsource value = default;
 
+                        for (int i = 0; i < matrices.Length; i++)
+                            value -= (dynamic)matrices[i][row, column];
+
+                        calculated[row, column] = value;
+                    }
                 });
             else if (MatrixOperationsSettings.CheckIsParallelModeUseful(columns))
                 for (int row = 0; row < rows; row++)
-                    Parallel.For(0, (int)columns, column =>
+                    Parallel.For(0, columns, column =>
                     {
+                        Tsource value = default;
 
+                        for (int i = 0; i < matrices.Length; i++)
+                            value -= (dynamic)matrices[i][row, column];
+
+                        calculated[row, column] = value;
                     });
             else
                 for (int row = 0; row < rows; row++)
@@ -588,7 +601,7 @@ namespace MatrixOperations
 
         public override string ToString()
         {
-            StringBuilder output = new StringBuilder();
+            var output = new StringBuilder();
             if ((this.value?.Length ?? 0) == 0 || (this.value[0]?.Length ?? 0) == 0)
                 return string.Empty;
 

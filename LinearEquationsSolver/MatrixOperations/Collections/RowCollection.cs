@@ -185,7 +185,6 @@ namespace MatrixOperations
             return IndexOf(item) > -1;
         }
 
-        /// <summary></summary>
         /// <exception cref="NotSupportedException"/>
         [Obsolete]
         public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotSupportedException();

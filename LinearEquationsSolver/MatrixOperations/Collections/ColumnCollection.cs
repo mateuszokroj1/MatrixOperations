@@ -23,9 +23,9 @@ namespace MatrixOperations
 
         #region Properties
 
-        public int Count => (this.matrix.value?.GroupBy(row => row.Length).Max(group => group.Key)) ?? 0;
+        public int Count => (this.matrix.value?.GroupBy(row => row.Length).Select(group => group.Key).First()) ?? 0;
 
-        public long LongCount => (this.matrix.value?.GroupBy(row => row.LongLength).Max(group => group.Key)) ?? 0;
+        public long LongCount => (this.matrix.value?.GroupBy(row => row.LongLength).Select(group => group.Key).First()) ?? 0;
 
         public bool IsReadOnly => false;
 
@@ -203,9 +203,14 @@ namespace MatrixOperations
             return true;
         }
 
+        /// <summary>Returns IEnumerator for matrix columns</summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         public IEnumerator<Tsource[]> GetEnumerator() => new ColumnEnumerator<Tsource>(this.matrix);
+
+        /// <summary>Returns IEnumerator for matrix columns</summary>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentException"/>
         IEnumerator IEnumerable.GetEnumerator() => new ColumnEnumerator<Tsource>(this.matrix);
         #endregion
     }
