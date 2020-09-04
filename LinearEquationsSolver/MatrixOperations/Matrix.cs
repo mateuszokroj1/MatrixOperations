@@ -838,7 +838,7 @@ namespace MatrixOperations
             if (Rows.Count == 0)
                 return new Tsource[0];
 
-            if (!IsVector || !CheckIsDiagonal())
+            if (!IsVector && !CheckIsDiagonal())
                 throw new InvalidOperationException("Matrix is not vector or diagonal");
 
             if (Rows.Count == 1)
