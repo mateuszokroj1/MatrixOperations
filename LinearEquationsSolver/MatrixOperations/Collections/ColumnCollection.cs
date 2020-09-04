@@ -203,6 +203,22 @@ namespace MatrixOperations
             return true;
         }
 
+        /// <summary>
+        /// Multiplies selected column with scalar value
+        /// </summary>
+        /// <exception cref="IndexOutOfRangeException"/>
+        public void MultiplyWithScalar(int columnIndex, Tsource scalarValue)
+        {
+            if (columnIndex < 0 || columnIndex >= this.matrix.Columns.Count)
+                throw new IndexOutOfRangeException();
+
+            if ((dynamic)scalarValue == 1)
+                return;
+
+            for (int rowIndex = 0; rowIndex < this.matrix.Rows.Count; rowIndex++)
+                this.matrix[rowIndex, columnIndex] *= (dynamic)scalarValue;
+        }
+
         /// <summary>Returns IEnumerator for matrix columns</summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
@@ -212,6 +228,7 @@ namespace MatrixOperations
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         IEnumerator IEnumerable.GetEnumerator() => new ColumnEnumerator<Tsource>(this.matrix);
+
         #endregion
     }
 }

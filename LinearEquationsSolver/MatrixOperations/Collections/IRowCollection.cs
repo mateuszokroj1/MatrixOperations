@@ -7,5 +7,7 @@ namespace MatrixOperations
         where Tsource : struct, IEquatable<Tsource>
     {
         long LongCount { get; }
+
+        void MultiplyWithScalar(int rowIndex, Tsource scalar);
     }
 }

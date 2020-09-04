@@ -710,38 +710,6 @@ namespace MatrixOperations
         }
 
         /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="IndexOutOfRangeException" />
-        public void MultiplyRowWithScalar(int rowIndex, Tsource scalarValue)
-        {
-            if (rowIndex < 0 || rowIndex >= Rows.Count)
-                throw new IndexOutOfRangeException();
-
-            if ((dynamic)scalarValue == 1)
-                return;
-
-            for (int columnIndex = 0; columnIndex < Columns.Count; columnIndex++)
-                this[rowIndex, columnIndex] *= (dynamic)scalarValue;
-        }
-
-        /// <summary>
-        /// Multiplies selected column with scalar value
-        /// </summary>
-        /// <exception cref="IndexOutOfRangeException"/>
-        public void MultiplyColumnWithScalar(int columnIndex, Tsource scalarValue)
-        {
-            if (columnIndex < 0 || columnIndex >= Columns.Count)
-                throw new IndexOutOfRangeException();
-
-            if ((dynamic)scalarValue == 1)
-                return;
-
-            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
-                this[rowIndex, columnIndex] *= (dynamic)scalarValue;
-        }
-
-        /// <summary>
         /// Multiplies all matrix cells with scalar value
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
@@ -751,7 +719,7 @@ namespace MatrixOperations
                 return;
 
             if (MatrixOperationsSettings.CheckIsParallelModeUseful(Rows.Count))
-                Parallel.For(0, Rows.Count, rowIndex => MultiplyRowWithScalar(rowIndex, scalarValue));
+                Parallel.For(0, Rows.Count, rowIndex => Rows.MultiplyWithScalar(rowIndex, scalarValue));
             else if (MatrixOperationsSettings.CheckIsParallelModeUseful(Columns.Count))
             {
                 Parallel.For(0, Columns.Count, columnIndex =>
@@ -762,7 +730,7 @@ namespace MatrixOperations
             }
             else
                 for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
-                    MultiplyRowWithScalar(rowIndex, scalarValue);
+                    Rows.MultiplyWithScalar(rowIndex, scalarValue);
         }
 
         /// <summary>
