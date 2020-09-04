@@ -18,8 +18,6 @@ namespace MatrixOperations
         Matrix<Tsource> SkipColumn(uint columnIndex);
         Matrix<Tsource> SkipRow(uint rowIndex);
         Matrix<Tsource> Transpose();
-        void MultiplyRowWithScalar(int rowIndex, Tsource scalarValue);
-        void MultiplyColumnWithScalar(int columnIndex, Tsource scalarValue);
         void MultiplyWithScalar(Tsource scalarValue);
         Tsource CalculateDeterminant();
         Matrix<Tsource> Inversion();
