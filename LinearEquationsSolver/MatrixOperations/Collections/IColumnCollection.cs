@@ -8,5 +8,7 @@ namespace MatrixOperations.Collections
         where Tsource : struct, IEquatable<Tsource>
     {
         long LongCount { get; }
+
+        void MultiplyWithScalar(int columnIndex, Tsource scalar);
     }
 }

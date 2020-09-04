@@ -205,9 +205,26 @@ namespace MatrixOperations
             return true;
         }
 
+        /// <summary>
+        /// Multiplies selected row with scalar value
+        /// </summary>
+        /// <exception cref="IndexOutOfRangeException" />
+        public void MultiplyWithScalar(int rowIndex, Tsource scalarValue)
+        {
+            if (rowIndex < 0 || rowIndex >= this.matrix.Rows.Count)
+                throw new IndexOutOfRangeException();
+
+            if ((dynamic)scalarValue == 1)
+                return;
+
+            for (int columnIndex = 0; columnIndex < this.matrix.Columns.Count; columnIndex++)
+                this.matrix[rowIndex, columnIndex] *= (dynamic)scalarValue;
+        }
+
         public IEnumerator<Tsource[]> GetEnumerator() => new RowEnumerator<Tsource>(this.matrix);
         
         IEnumerator IEnumerable.GetEnumerator() => new RowEnumerator<Tsource>(this.matrix);
+
         #endregion
     }
 }
