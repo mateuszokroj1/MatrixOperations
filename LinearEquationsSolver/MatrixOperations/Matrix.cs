@@ -153,9 +153,14 @@ namespace MatrixOperations
         #region Static
 
         public static bool CheckIsSizeEqual(params Matrix<Tsource>[] matrices)
-        => matrices
-                .GroupBy(item => item.Rows.Count, item => item.Columns.Count)
-                .Count() == 1;
+        {
+            if (matrices == null || matrices.Where(matrix => matrix == null).Count() > 0)
+                throw new ArgumentNullException();
+
+            return matrices
+                  .GroupBy(item => item.Rows.Count, item => item.Columns.Count)
+                  .Count() == 1;
+        }
 
         private static bool CheckMatricesHaveValidSizeForMultiplication(params Matrix<Tsource>[] matrices)
         {
