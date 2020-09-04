@@ -320,11 +320,131 @@ namespace MatrixOperations.Tests
             var matrix1 = new Matrix<int>(20,20);
             Assert.IsType<RowCollection<int>>(matrix1.Rows);
             Assert.Equal(20, matrix1.Rows.Count);
+            foreach(var row in matrix1.Rows)
+            {
+                Assert.NotNull(row);
+                Assert.Equal(20, row.Length);
+                foreach (var cell in row)
+                    Assert.Equal(default(int), cell);
+            }
 
             var matrix2 = new Matrix<float>();
             Assert.IsType<RowCollection<float>>(matrix2.Rows);
             Assert.Empty(matrix2.Rows);
         }
+
+        [Fact]
+        public void Columns_ShouldReturnCollection()
+        {
+            var matrix1 = new Matrix<float>(5,5);
+            Assert.IsType<ColumnCollection<float>>(matrix1.Columns);
+            Assert.Equal(5, matrix1.Columns.Count);
+            foreach(var column in matrix1.Columns)
+            {
+                Assert.NotNull(column);
+                Assert.Equal(5, column.Length);
+                foreach (var cell in column)
+                    Assert.Equal(default(float), cell);
+            }
+
+            var matrix2 = new Matrix<long>();
+            Assert.IsType<ColumnCollection<long>>(matrix2.Columns);
+            Assert.Empty(matrix2.Columns);
+        }
+
+        [Fact]
+        public void Indexer_WhenIndexesAreInRange_ShouldReadAndWriteCell()
+        {
+            var matrix = new Matrix<int>(2,2)
+            {
+                [0,0] = 1,
+                [0,1] = 10,
+                [1,0] = 100,
+                [1,1] = 1000
+            };
+
+            Assert.Equal(1, matrix[0,0]);
+            Assert.Equal(10, matrix[0,1]);
+            Assert.Equal(100, matrix[1,0]);
+            Assert.Equal(1000, matrix[1,1]);
+        }
+
+        [Fact]
+        public void Indexer_WhenIndexesAreOutOfRange_ShouldThrowIndexOutOfRangeException()
+        {
+            var matrix = new Matrix<bool>(2,2);
+            Assert.Throws<IndexOutOfRangeException>(() => matrix[2, 2] = true);
+            Assert.Throws<IndexOutOfRangeException>(() => matrix[int.MaxValue, int.MaxValue]);
+        }
+
+        #endregion
+
+        #region Static
+
+        [Fact]
+        public void CheckIsSizeEqual_WhenArgumentIsNull_ShouldThrowArgumentNullException()
+        {
+            Matrix<int>[] matrices = null;
+            Assert.Throws<ArgumentNullException>(() => Matrix<int>.CheckIsSizeEqual(matrices));
+        }
+
+        [Fact]
+        public void CheckIsSizeEqual_WhenOneMatrixIsNull_ShouldThrowArgumentNullException()
+        {
+            var m1 = new Matrix<bool>(2, 2);
+            Assert.Throws<ArgumentNullException>(() => Matrix<bool>.CheckIsSizeEqual(m1, null));
+        }
+
+        [Fact]
+        public void CheckIsSizeEqual_WhenMatricesHaveTheSameSize_ShouldReturnTrue()
+        {
+            var matrices = new Matrix<float>[]
+            {
+                new Matrix<float>(10,10),
+                new Matrix<float>(10,10),
+                new Matrix<float>(10,10),
+                new Matrix<float>(10,10)
+            };
+
+            Assert.True(Matrix<float>.CheckIsSizeEqual(matrices));
+        }
+
+        [Fact]
+        public void CheckIsSizeEqual_WhenMatricesHaveRandomSizes_ShouldReturnFalse()
+        {
+            var matrices = new Matrix<long>[]
+            {
+                new Matrix<long>(5,3),
+                new Matrix<long>(32,12),
+                new Matrix<long>(10,1),
+                new Matrix<long>(100,10)
+            };
+
+            Assert.False(Matrix<long>.CheckIsSizeEqual(matrices));
+        }
+
+        #region Generators
+
+        [Fact]
+        public void GenerateIdentity_ShouldReturnMatrix()
+        {
+            var matrix = Matrix<decimal>.GenerateIdentity(5);
+            Assert.Equal(5, matrix.Rows.Count);
+            Assert.Equal(5, matrix.Columns.Count);
+            Assert.True(matrix.CheckIsDiagonal());
+
+            var vector = matrix.AsVector();
+            Assert.NotNull(vector);
+            Assert.Equal(5, vector.Count());
+            foreach (var item in vector)
+                Assert.Equal(1M, item);
+
+            var matrix2 = Matrix<int>.GenerateIdentity(0);
+            Assert.Empty(matrix2.Rows);
+            Assert.Empty(matrix2.Columns);
+        }
+
+        #endregion
 
         #endregion
     }
