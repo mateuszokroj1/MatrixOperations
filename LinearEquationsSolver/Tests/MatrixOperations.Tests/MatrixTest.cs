@@ -444,6 +444,37 @@ namespace MatrixOperations.Tests
             Assert.Empty(matrix2.Columns);
         }
 
+        [Fact]
+        public void GenerateDiagonal_WhenArgumentIsNull_ShouldThrowArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Matrix<int>.GenerateDiagonal(null));
+        }
+
+        [Fact]
+        public void GenerateDiagonal_WhenVectorIsEmpty_ShouldReturnEmptyMatrix()
+        {
+            var matrix = Matrix<bool>.GenerateDiagonal(new bool[0]);
+            Assert.NotNull(matrix);
+            Assert.Empty(matrix.Rows);
+            Assert.Empty(matrix.Columns);
+        }
+
+        [Fact]
+        public void GenerateDiagonal_WhenVectorIsValid_ShouldReturnMatrix()
+        {
+            var vector = Enumerable.Range(1, 5);
+            var matrix = Matrix<int>.GenerateDiagonal(vector);
+            Assert.Equal(5, matrix.Rows.Count);
+            Assert.Equal(5, matrix.Columns.Count);
+
+            for (int row = 0; row < 5; row++)
+                for (int column = 0; column < 5; column++)
+                    if (row == column)
+                        Assert.Equal(vector.ElementAt(row), matrix[row, column]);
+                    else
+                        Assert.Equal(0, matrix[row,column]);
+        }
+
         #endregion
 
         #endregion
