@@ -6,7 +6,7 @@ namespace MatrixOperations.Helpers
     {
 
         public static T ConvertDegreesToRadians<T>(T angleToConvert) where T : struct
-        => ((dynamic)angleToConvert / 180) * Math.PI;
+        => Convert.ChangeType(((dynamic)angleToConvert / 180) * Math.PI, typeof(T));
 
     }
 }
