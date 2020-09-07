@@ -46,7 +46,7 @@ namespace MatrixOperations.Tests
 
             MatrixOperationsSettings.CanRunInParallelMode = true;
             MatrixOperationsSettings.MinimumCountForParallelMode = 2000;
-            Assert.False(MatrixOperationsSettings.CheckIsParallelModeUseful(5000M));
+            Assert.True(MatrixOperationsSettings.CheckIsParallelModeUseful(5000M));
         }
     }
 }
