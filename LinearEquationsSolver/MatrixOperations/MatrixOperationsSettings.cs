@@ -11,7 +11,7 @@ namespace MatrixOperations
         #region CheckIsParallelModeUseful
 
         internal static bool CheckIsParallelModeUseful<T>(T itemCount) where T : struct, IComparable
-        => itemCount.CompareTo(MinimumCountForParallelMode) >= 0 && CanRunInParallelMode;
+        => (dynamic)itemCount >= MinimumCountForParallelMode && CanRunInParallelMode;
 
         #endregion
     }
