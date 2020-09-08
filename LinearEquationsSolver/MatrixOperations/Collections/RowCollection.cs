@@ -102,24 +102,15 @@ namespace MatrixOperations
             if (item.Length != this.matrix.Columns.Count)
                 throw new ArgumentException("New row must have the same length as other.");
 
-            
-
             Tsource[][] newarray = new Tsource[Count+1][];
 
-            int i = 0;
-            while(i < index)
-            {
-                newarray[i] = this[i];
-                i++;
-            }
+            for (int i = 0; i < index; i++)
+                newarray[i] = this.matrix.value[i];
 
-            newarray[i] = item;
+            newarray[index] = item;
 
-            while (i < Count+1)
-            {
-                newarray[i] = this[i - 1];
-                i++;
-            }
+            for (int i = index; i < this.matrix.value.Length; i++)
+                newarray[i+1] = this.matrix.value[i];
 
             this.matrix.value = newarray;
         }
