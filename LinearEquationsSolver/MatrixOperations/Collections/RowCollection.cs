@@ -93,14 +93,16 @@ namespace MatrixOperations
         /// <exception cref="IndexOutOfRangeException"/>
         public void Insert(int index, Tsource[] item)
         {
+            if (index >= Count || index < 0)
+                throw new IndexOutOfRangeException();
+
             if (item == null)
                 throw new ArgumentNullException();
 
             if (item.Length != this.matrix.Columns.Count)
                 throw new ArgumentException("New row must have the same length as other.");
 
-            if (index >= Count)
-                throw new IndexOutOfRangeException(nameof(index));
+            
 
             Tsource[][] newarray = new Tsource[Count+1][];
 
