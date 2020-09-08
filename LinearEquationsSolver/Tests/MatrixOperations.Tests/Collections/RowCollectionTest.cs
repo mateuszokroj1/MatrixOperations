@@ -115,6 +115,9 @@ namespace MatrixOperations.Tests.Collections
 
         #region Methods
 
+
+        #region IndexOf
+
         [Fact]
         public void IndexOf_WhenArgumentIsNull_ShouldThrowArgumentNullException()
         {
@@ -155,6 +158,10 @@ namespace MatrixOperations.Tests.Collections
             Assert.Equal(expectedValue, collection.IndexOf(rowToTest));
         }
 
+        #endregion
+
+        #region Insert
+
         [Fact]
         public void Insert_WhenIndexIsOutOfRange_ShouldThrowIndexOutOfRangeException()
         {
@@ -180,7 +187,7 @@ namespace MatrixOperations.Tests.Collections
             var matrix = new Matrix<bool>(2, 2);
             var collection = new RowCollection<bool>(matrix);
 
-            Assert.Throws<ArgumentException>(() => collection.Insert(0, new bool[] { true, false }));
+            Assert.Throws<ArgumentException>(() => collection.Insert(0, new bool[] { true, false, true }));
         }
 
         [Fact]
@@ -194,6 +201,18 @@ namespace MatrixOperations.Tests.Collections
             Assert.Equal(3, collection.LongCount);
             Assert.Equal(0, collection.IndexOf(new int[] { 1,1 }));
         }
+
+        #endregion
+
+        #region RemoveAt
+
+        [Fact]
+        public void RemoveAt_WhenIndexIsOutOfRange_ShouldThrowIndexOutOfRangeException()
+        {
+
+        }
+
+        #endregion
 
         #endregion
     }
