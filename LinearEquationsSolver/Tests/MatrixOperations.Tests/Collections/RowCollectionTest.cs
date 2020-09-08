@@ -158,7 +158,41 @@ namespace MatrixOperations.Tests.Collections
         [Fact]
         public void Insert_WhenIndexIsOutOfRange_ShouldThrowIndexOutOfRangeException()
         {
+            var matrix = new Matrix<bool>(2,2);
+            var collection = new RowCollection<bool>(matrix);
 
+            Assert.Throws<IndexOutOfRangeException>(() => collection.Insert(-1, null));
+            Assert.Throws<IndexOutOfRangeException>(() => collection.Insert(2, null));
+        }
+
+        [Fact]
+        public void Insert_WhenArgumentIsNull_ShouldThrowArgumentNullException()
+        {
+            var matrix = new Matrix<bool>(2, 2);
+            var collection = new RowCollection<bool>(matrix);
+
+            Assert.Throws<ArgumentNullException>(() => collection.Insert(0, null));
+        }
+
+        [Fact]
+        public void Insert_WhenArgumentHaveInvalid_ShouldThrowArgumentException()
+        {
+            var matrix = new Matrix<bool>(2, 2);
+            var collection = new RowCollection<bool>(matrix);
+
+            Assert.Throws<ArgumentException>(() => collection.Insert(0, new bool[] { true, false }));
+        }
+
+        [Fact]
+        public void Insert_WhenArgumentIsValid_ShouldAddNewRow()
+        {
+            var matrix = new Matrix<int>(2, 2);
+            var collection = new RowCollection<int>(matrix);
+
+            collection.Insert(0, new int[] { 1,1 });
+            Assert.Equal(3, collection.Count);
+            Assert.Equal(3, collection.LongCount);
+            Assert.Equal(0, collection.IndexOf(new int[] { 1,1 }));
         }
 
         #endregion
