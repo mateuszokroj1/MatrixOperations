@@ -209,7 +209,70 @@ namespace MatrixOperations.Tests.Collections
         [Fact]
         public void RemoveAt_WhenIndexIsOutOfRange_ShouldThrowIndexOutOfRangeException()
         {
+            var matrix = new Matrix<int>(4,4);
+            var collection = new RowCollection<int>(matrix);
 
+            Assert.Throws<IndexOutOfRangeException>(() => collection.RemoveAt(4));
+            Assert.Throws<IndexOutOfRangeException>(() => collection.RemoveAt(-1));
+        }
+
+        [Fact]
+        public void RemoveAt_WhenIndexIsValid_ShouldRemoveRow()
+        {
+            var matrix = new Matrix<int>(4, 4);
+            var collection = new RowCollection<int>(matrix);
+
+            collection.RemoveAt(0);
+            Assert.Equal(3, collection.Count);
+            Assert.Equal(3, collection.LongCount);
+        }
+
+        #endregion
+
+        #region Remove
+
+        [Fact]
+        public void Remove_WhenRowIsNull_ShouldTHrowArgumentNullException()
+        {
+            var matrix = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 1, 2, 3 },
+                new int [] { 1, -2, 3, 10 }
+            });
+            var collection = new RowCollection<int>(matrix);
+
+            Assert.Throws<ArgumentNullException>(() => collection.Remove(null));
+        }
+
+        [Fact]
+        public void Remove_WhenRowNotExists_ShouldReturnFalse()
+        {
+            var matrix = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 1, 2, 3 },
+                new int [] { 1, -2, 3, 10 }
+            });
+            var collection = new RowCollection<int>(matrix);
+
+            Assert.False(collection.Remove(new int[] { 0, 1 }));
+            Assert.Equal(2, collection.Count);
+            Assert.Equal(2, collection.LongCount);
+        }
+
+        [Fact]
+        public void Remove_WhenRowExists_ShouldReturnTrueAndRemoveRow()
+        {
+            var matrix = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 1, 2, 3 },
+                new int [] { 1, -2, 3, 10 }
+            });
+            var collection = new RowCollection<int>(matrix);
+
+            Assert.True(collection.Remove(new int[] { 0, 1, 2, 3 }));
+
+            Assert.Equal(1, collection.Count);
+            Assert.Equal(1, collection.LongCount);
         }
 
         #endregion
