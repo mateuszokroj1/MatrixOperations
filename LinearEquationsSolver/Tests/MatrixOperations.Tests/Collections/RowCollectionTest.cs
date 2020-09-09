@@ -277,6 +277,37 @@ namespace MatrixOperations.Tests.Collections
 
         #endregion
 
+        #region Contains
+
+        [Fact]
+        public void Contains_WhenRowNotExists_ShouldReturnFalse()
+        {
+            var matrix = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 1, 2, 3 },
+                new int [] { 1, -2, 3, 10 }
+            });
+            var collection = new RowCollection<int>(matrix);
+
+            Assert.False(collection.Contains(new int[] { 0, 1, 2, 4 }));
+            Assert.False(collection.Contains(null));
+        }
+
+        [Fact]
+        public void Contains_WhenRowExists_ShouldReturnTrue()
+        {
+            var matrix = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 1, 2, 3 },
+                new int [] { 1, -2, 3, 10 }
+            });
+            var collection = new RowCollection<int>(matrix);
+
+            Assert.True(collection.Contains(new int[] { 0, 1, 2, 3 }));
+        }
+
+        #endregion
+
         #endregion
     }
 }
