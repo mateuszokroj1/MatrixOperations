@@ -115,25 +115,12 @@ namespace MatrixOperations.Tests.Collections
 
         #region Methods
 
-
         #region IndexOf
-
-        [Fact]
-        public void IndexOf_WhenArgumentIsNull_ShouldThrowArgumentNullException()
-        {
-            var matrix = new Matrix<double>(20, 20);
-            var collection = new RowCollection<double>(matrix);
-
-            Assert.Throws<ArgumentNullException>(() => collection.IndexOf(null));
-
-            matrix = new Matrix<double>();
-            collection = new RowCollection<double>(matrix);
-            Assert.Throws<ArgumentNullException>(() => collection.IndexOf(null));
-        }
 
         [Theory]
         [InlineData(new double[] { 2, 3 })]
         [InlineData(new double[] { 3, 4, 1, 0 })]
+        [InlineData(null)]
         public void IndexOf_WhenRowNotExists_ShouldReturnMinus1(double[] rowsToTest)
         {
             var matrix = new Matrix<double>(20, 5);
@@ -304,6 +291,36 @@ namespace MatrixOperations.Tests.Collections
             var collection = new RowCollection<int>(matrix);
 
             Assert.True(collection.Contains(new int[] { 0, 1, 2, 3 }));
+        }
+
+        #endregion
+
+        #region Add
+
+        [Fact]
+        public void Add_WhenArgumentIsNull_ShouldThrowArgumentNullException()
+        {
+            var matrix = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 1, 2, 3 },
+                new int [] { 1, -2, 3, 10 }
+            });
+            var collection = new RowCollection<int>(matrix);
+
+            Assert.Throws<ArgumentNullException>(() => collection.Add(null));
+        }
+
+        [Fact]
+        public void Add_WhenArgumentIsInvalid_ShouldThrowArgumentException()
+        {
+            var matrix = new Matrix<int>(new int[][]
+            {
+                new int [] { 0, 1, 2, 3 },
+                new int [] { 1, -2, 3, 10 }
+            });
+            var collection = new RowCollection<int>(matrix);
+
+            Ass
         }
 
         #endregion
