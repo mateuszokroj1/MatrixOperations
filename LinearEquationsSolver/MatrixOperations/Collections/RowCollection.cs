@@ -131,7 +131,7 @@ namespace MatrixOperations
                 newarray[i] = this.matrix.value[i];
 
             for (int i = index; i < this.matrix.value.Length; i++)
-                newarray[i - 1] = this.matrix.value[i];
+                newarray[i] = this.matrix.value[i+1];
 
             this.matrix.value = newarray;
         }
