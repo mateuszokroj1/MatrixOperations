@@ -56,11 +56,10 @@ namespace MatrixOperations
         /// <summary>
         /// Search matrix for row equals to 'item' and return index of row in matrix or -1.
         /// </summary>
-        /// 
         public int IndexOf(Tsource[] item)
         {
             if (item == null)
-                throw new ArgumentNullException();
+                return -1;
 
             if (item.Length != this.matrix.Columns.Count)
                 return -1;
@@ -167,12 +166,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="item">Row to search</param>
         public bool Contains(Tsource[] item)
-        {
-            if (item == null)
-                throw new ArgumentNullException();
-
-            return IndexOf(item) > -1;
-        }
+        => IndexOf(item) > -1;
 
         /// <exception cref="NotSupportedException"/>
         [Obsolete]
