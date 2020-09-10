@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -338,6 +339,31 @@ namespace MatrixOperations.Tests.Collections
             Assert.Equal(3, collection.Count);
             Assert.Equal(3, collection.LongCount);
             Assert.Contains(new float[] { 0.23f, -0.000013f, 123f, 0.00003f }, collection);
+        }
+
+        #endregion
+
+        #region MultiplyWithScalar
+
+        [Fact]
+        public void 
+
+        #endregion
+
+        #region GetEnumerator
+
+        [Fact]
+        public void GetEnumerator_ShouldReturnEnumerator()
+        {
+            var matrix = new Matrix<float>(new float[][]
+            {
+                new float [] { 0.12f, 0.00024f, 1, 1000 },
+                new float [] { 0, 0, 1, -0.00134f }
+            });
+            var collection = new RowCollection<float>(matrix);
+
+            IEnumerator<float[]> enumerator = collection.GetEnumerator();
+            Assert.NotNull(enumerator);
         }
 
         #endregion
