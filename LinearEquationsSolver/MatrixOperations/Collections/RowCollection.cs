@@ -168,9 +168,29 @@ namespace MatrixOperations
         public bool Contains(Tsource[] item)
         => IndexOf(item) > -1;
 
-        /// <exception cref="NotSupportedException"/>
-        [Obsolete]
-        public void CopyTo(Tsource[][] array, int arrayIndex) => throw new NotSupportedException();
+        /// <summary>
+        /// Copies all values to new array of <typeparamref name="Tsource"/>[]
+        /// </summary>
+        /// <param name="array">Destination array</param>
+        /// <param name="arrayIndex">Destination array start index</param>
+        public void CopyTo(Tsource[][] array, int arrayIndex)
+        {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+
+            if (arrayIndex < 0 || arrayIndex >= array.Length)
+                throw new ArgumentOutOfRangeException();
+
+            if (array.Length-arrayIndex != Count)
+                throw new ArgumentException("Destination array is too small.");
+
+            for(int i = 0, j = arrayIndex; i < Count && j < array.Length; i++, j++)
+            {
+                array[j] = new Tsource[this.matrix.value[0].Length];
+                for (int columnIndex = 0; columnIndex < this.matrix.value[0].Length; columnIndex++)
+                    array[j][columnIndex] = this.matrix.value[i][columnIndex];
+            }
+        }
 
         
         public bool Remove(Tsource[] item)
