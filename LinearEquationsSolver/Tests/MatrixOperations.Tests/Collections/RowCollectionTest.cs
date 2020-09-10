@@ -343,10 +343,19 @@ namespace MatrixOperations.Tests.Collections
 
         #endregion
 
+        #region CopyTo
+
+
+
+        #endregion
+
         #region MultiplyWithScalar
 
         [Fact]
-        public void 
+        public void MultiplyWithScalar_()
+        {
+
+        }
 
         #endregion
 
