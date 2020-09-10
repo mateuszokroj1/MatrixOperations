@@ -144,7 +144,7 @@ namespace MatrixOperations
             if (item == null)
                 throw new ArgumentNullException();
 
-            if (Count > 0 || item.Length != this.matrix.Columns.Count)
+            if (Count < 1 || item.Length != this.matrix.Columns.Count)
                 throw new ArgumentException("New row must have the same length as other.");
 
             Tsource[][] newarray = new Tsource[Count+1][];
