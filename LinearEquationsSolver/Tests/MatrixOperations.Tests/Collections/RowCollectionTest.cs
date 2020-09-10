@@ -320,7 +320,24 @@ namespace MatrixOperations.Tests.Collections
             });
             var collection = new RowCollection<int>(matrix);
 
-            Ass
+            Assert.Throws<ArgumentException>(() => collection.Add(new int[] { 1, 3, 2 }));
+        }
+
+        [Fact]
+        public void Add_WhenArgumentIsValid_ShouldAddRow()
+        {
+            var matrix = new Matrix<float>(new float[][]
+            {
+                new float [] { 0.12f, 0.00024f, 1, 1000 },
+                new float [] { 0, 0, 1, -0.00134f }
+            });
+            var collection = new RowCollection<float>(matrix);
+
+            collection.Add(new float[] { 0.23f, -0.000013f, 123f, 0.00003f });
+
+            Assert.Equal(3, collection.Count);
+            Assert.Equal(3, collection.LongCount);
+            Assert.Contains(new float[] { 0.23f, -0.000013f, 123f, 0.00003f }, collection);
         }
 
         #endregion
