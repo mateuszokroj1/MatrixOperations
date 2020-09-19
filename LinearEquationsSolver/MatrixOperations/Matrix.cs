@@ -241,66 +241,29 @@ namespace MatrixOperations
                 throw new InvalidOperationException("Matrices haven't valid sizes for multiplication.");
 
             if (matrices.Length == 1)
-                return matrices[0];
-
-            var calculated = new Matrix<Tsource>(matrices[0]);
-
-            for(int i = 0; i < matrices.Length-1; i++)
-                calculated = Multiply(calculated, matrices[1]);
-
-            return calculated;
-        }
-
-        public static Matrix<Tsource> Multiply(Matrix<Tsource> a, Matrix<Tsource> b)
-        {
-            if (a == null)
-                throw new ArgumentNullException(nameof(a));
-
-            if (b == null)
-                throw new ArgumentNullException(nameof(b));
-
-            if (!CheckMatricesHaveValidSizeForMultiplication(a, b))
-                throw new InvalidOperationException("Matrices haven't valid sizes for multiplication.");
-
-            var calculated = new Matrix<Tsource>(a.Rows.Count, b.Columns.Count);
-
-            if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Rows.Count))
-                Parallel.For(0, calculated.Rows.Count, row =>
-                {
-                    for (int column = 0; column < calculated.Columns.Count; column++)
+                return matrices[1].Clone() as Matrix<Tsource>;
+            else if (matrices.Length == 2)
+            {
+                Matrix<Tsource> result = new Matrix<Tsource>
+                (
+                    matrices[matrices.Length - 2].Rows.Count,
+                    matrices[matrices.Length - 1].Columns.Count
+                );
+                //TODO: Parallel 
+                for (int row = 0; row < result.Rows.Count; row++)
+                    for (int column = 0; column < result.Columns.Count; column++)
                     {
                         Tsource value = default;
+                        for (int i = 0; i < matrices[0].Columns.Count; i++)
+                            value += (dynamic)matrices[0][row, i] * matrices[1][i, column];
 
-                        for (int index = 0; index < a.Columns.Count; index++)
-                            value += (dynamic)a[row, index] * b[index, column];
-
-                        calculated[row, column] = value;
+                        result[row, column] = value;
                     }
-                });
-            else if (MatrixOperationsSettings.CheckIsParallelModeUseful(calculated.Columns.Count))
-                for (int row = 0; row < calculated.Rows.Count; row++)
-                    Parallel.For(0, calculated.Columns.Count, column =>
-                    {
-                        Tsource value = default;
 
-                        for (int index = 0; index < a.Columns.Count; index++)
-                            value += (dynamic)a[row, index] * b[index, column];
-
-                        calculated[row, column] = value;
-                    });
+                return result;
+            }
             else
-                for (int row = 0; row < calculated.Rows.Count; row++)
-                    for (int column = 0; column < calculated.Columns.Count; column++)
-                    {
-                        Tsource value = default;
-
-                        for (int index = 0; index < a.Columns.Count; index++)
-                            value += (dynamic)a[row, index] * b[index, column];
-
-                        calculated[row, column] = value;
-                    }
-
-            return calculated;
+                return Multiply(Multiply(matrices.Take(matrices.Length-1).ToArray()), matrices[matrices.Length-1]);
         }
 
         public static Matrix<Tsource> Multiply(Tsource scalar, Matrix<Tsource> matrix)
