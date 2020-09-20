@@ -244,26 +244,97 @@ namespace MatrixOperations
                 return matrices[1].Clone() as Matrix<Tsource>;
             else if (matrices.Length == 2)
             {
-                Matrix<Tsource> result = new Matrix<Tsource>
-                (
-                    matrices[matrices.Length - 2].Rows.Count,
-                    matrices[matrices.Length - 1].Columns.Count
-                );
-                //TODO: Parallel 
-                for (int row = 0; row < result.Rows.Count; row++)
-                    for (int column = 0; column < result.Columns.Count; column++)
-                    {
-                        Tsource value = default;
-                        for (int i = 0; i < matrices[0].Columns.Count; i++)
-                            value += (dynamic)matrices[0][row, i] * matrices[1][i, column];
+                int rows = matrices[matrices.Length - 2].Rows.Count,
+                    columns = matrices[matrices.Length - 1].Columns.Count;
 
-                        result[row, column] = value;
-                    }
+                Matrix<Tsource> result = new Matrix<Tsource>(rows, columns);
+
+                if (MatrixOperationsSettings.CheckIsParallelModeUseful(rows))
+                    Parallel.For(0, rows, row =>
+                    {
+                        for (int column = 0; column < columns; column++)
+                            CalculateSingleCellInMultiplication
+                            (
+                                row,
+                                column,
+                                matrices[0],
+                                matrices[1],
+                                result
+                            );
+                    });
+                else if (MatrixOperationsSettings.CheckIsParallelModeUseful(columns))
+                    for (int row = 0; row < rows; row++)
+                        Parallel.For(0, columns, column =>
+                            CalculateSingleCellInMultiplication
+                            (
+                                row,
+                                column,
+                                matrices[0],
+                                matrices[1],
+                                result
+                            )
+                        );
+                else
+                    for (int row = 0; row < rows; row++)
+                        for (int column = 0; column < columns; column++)
+                            CalculateSingleCellInMultiplication
+                            (
+                                row,
+                                column,
+                                matrices[0],
+                                matrices[1],
+                                result
+                            );
 
                 return result;
             }
             else
-                return Multiply(Multiply(matrices.Take(matrices.Length-1).ToArray()), matrices[matrices.Length-1]);
+                return Multiply
+                    (
+                        Multiply(matrices.Take(matrices.Length-1).ToArray()),
+                        matrices[matrices.Length-1]
+                    );
+        }
+
+        /// <summary>
+        /// Calculates single cell in multiplicated matrix
+        /// </summary>
+        /// <param name="rowIndex">Index of row</param>
+        /// <param name="columnIndex">Index of column</param>
+        /// <param name="a">Left matrix</param>
+        /// <param name="b">Right matrix</param>
+        /// <param name="result">Result matrix</param>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentOutOfRangeException"/>
+        private static void CalculateSingleCellInMultiplication
+        (
+            int rowIndex,
+            int columnIndex,
+            Matrix<Tsource> a,
+            Matrix<Tsource> b,
+            Matrix<Tsource> result
+        )
+        {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+
+            if (rowIndex < 0 || rowIndex >= a.Rows.Count || rowIndex >= result.Rows.Count)
+                throw new ArgumentOutOfRangeException(nameof(rowIndex));
+
+            if (columnIndex < 0 || columnIndex >= b.Columns.Count || columnIndex >= result.Columns.Count)
+                throw new ArgumentOutOfRangeException(nameof(columnIndex));
+
+            Tsource value = default;
+            for (int i = 0; i < a.Columns.Count; i++)
+                value += (dynamic)a[rowIndex, i] * b[i, columnIndex];
+
+            result[rowIndex, columnIndex] = value;
         }
 
         public static Matrix<Tsource> Multiply(Tsource scalar, Matrix<Tsource> matrix)
