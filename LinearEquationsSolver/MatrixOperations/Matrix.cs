@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
-
-[assembly: InternalsVisibleTo("MatrixOperations.Tests")]
 
 namespace MatrixOperations
 {
     /// <summary>
     /// Basic matrix class. Values are saved in 2-dimensional array
     /// </summary>
-    /// <typeparam name="Tsource"></typeparam>
     public class Matrix<Tsource> : IMatrix<Tsource>
         where Tsource : struct, IEquatable<Tsource>
     {
@@ -43,6 +38,7 @@ namespace MatrixOperations
         {
             if (array == null)
                 throw new ArgumentNullException();
+
             Tsource[][] newarr = new Tsource[array.Length][];
             array.CopyTo(newarr, 0);
 
@@ -67,6 +63,7 @@ namespace MatrixOperations
         public Matrix(int rows, int columns) : this()
         {
             Tsource[][] arr;
+
             if (rows == 0 || columns == 0)
                 arr = new Tsource[0][];
             else
@@ -88,6 +85,7 @@ namespace MatrixOperations
         /// </summary>
         /// <param name="matrix"></param>
         /// <exception cref="ArgumentNullException" />
+        /// <exception cref="ArgumentException" />
         public Matrix(Matrix<Tsource> matrix) : this()
         {
             if (matrix == null)
@@ -130,8 +128,14 @@ namespace MatrixOperations
 
         #region Properties
 
+        /// <summary>
+        /// Returns <see langword="true"/>, if matrix is square
+        /// </summary>
         public bool IsSquare => Rows.Count == Columns.Count && Rows.Count > 0;
 
+        /// <summary>
+        /// Returns <see langword="true"/>, if matrix is similar to array
+        /// </summary>
         public bool IsVector => Rows.Count == 1 || Columns.Count == 1;
 
         /// <summary>
