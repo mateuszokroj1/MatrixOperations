@@ -5,8 +5,8 @@ namespace MatrixOperations.Helpers
     public static class AngleConverter
     {
 
-        public static T ConvertDegreesToRadians<T>(T angleToConvert) where T : struct
-        => Convert.ChangeType(((dynamic)angleToConvert / 180) * Math.PI, typeof(T));
+        public static double ConvertDegreesToRadians(double angleToConvert)
+        => angleToConvert / 180 * Math.PI;
 
     }
 }
